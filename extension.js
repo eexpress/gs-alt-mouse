@@ -1,6 +1,6 @@
-const { Clutter, Meta, Gdk } = imports.gi;
+const { Clutter, Meta, Gdk, Shell } = imports.gi;
 const Main = imports.ui.main;
-//~ mixed fork: panelScroll,
+//~ mixed fork from: panelScroll, JustP
 const POSITION = {
     LEFT: 0,
     RIGHT: 1
@@ -13,10 +13,19 @@ class PanelScroll {
 		this.wm = global.workspace_manager;
 		this.previousDirection = Meta.MotionDirection.UP;
 		this.listPointer = 0;
-		this.scrollEventId = Main.panel.connect('scroll-event', this.scrollEvent.bind(this));
+		//~ this.scrollEventId = Main.panel.connect('scroll-event', this.scrollEvent.bind(this));
+		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
     }
-
+//~ How can I get the `scroll-event` on any widget or say whole desktop, just like `Main.panel.connect('scroll-event',xxx)` does?
+//~ The ::scroll-event signal is emitted each time the mouse is scrolled on @actor
+//~ modifier_state 	Clutter.ModifierType 	r/w 	button modifiers
+//~ if event.modifier_state() == gdk::ModifierType::BUTTON2_MASK
+//~ https://valadoc.org/gdk-3.0/Gdk.ModifierType.html#!
+//~ BUTTON1_MASK CONTROL_MASK SHIFT_MASK META_MASK SUPER_MASK MOD1_MASK( normally it is the Alt key)
     scrollEvent(actor, event) {
+		//~ lg(event.get_state().toString(2));
+		//~ 11000 alt 10100 ctrl 1010000 super 10001 shift 10000 none
+		//~ if(event.get_state().toString(2) != '11000') return Clutter.EVENT_STOP;
         let direction;
         switch (event.get_scroll_direction()) {
         case Clutter.ScrollDirection.UP:
@@ -87,7 +96,7 @@ class PanelScroll {
             return w.is_attached_dialog() ? w.get_transient_for() : w;
         }).filter((w, i, a) => !w.skip_taskbar && a.indexOf(w) == i);
 
-		lg(windows.length);
+		//~ lg(windows.length);
         return windows;
     }
 
