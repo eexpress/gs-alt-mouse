@@ -9,29 +9,42 @@ class AltMouse {
 		this.previousDirection = Meta.MotionDirection.UP;
 		this.listPointer = 0;
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));
+//~ if has max window, click panel no emit 'button-release-event'????
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
 		//~ this.getWindows().forEach((w)=>{w.decorations.hide()});
 	}
 
+//~ 判断鼠标下面有没有窗口。window_under_pointer
+//~ ‌桌面的按键事件要去掉。
+//~ ‌窗口去掉装饰条。
+//~ ‌窗口上，全局附加alt键。
+
 	clickEvent(actor, event){
-		const w = global.display.get_focus_window()
+		let w = global.display.get_focus_window();
 		switch (event.get_button()) {
 			case 1:
 				if(w.allows_move())
 				w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
 				return Clutter.EVENT_STOP;
 				break;
-			case 2:	//middle click  Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN
+			case 2:	//middle click  //Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN
 				if(w.allows_resize())
 				w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
 				return Clutter.EVENT_STOP;
 				break;
 			case 3:
-				w.lower();	//focus still on this window.
+				w.lower();
+				this.switchWindows(Meta.MotionDirection.UP);
 				return Clutter.EVENT_STOP;
 				break;
 			default:
 		}
+	};
+
+	showinfo(w){
+		lg(w.get_title());
+		//~ const r = w.get_buffer_rect();
+		//~ lg(`${r.x},${r.y}, ${r.width}x${r.height}`);
 	};
 
 //event.modifier_state()
@@ -83,9 +96,9 @@ class AltMouse {
 		let cws = global.workspace_manager.get_active_workspace();
 
 		let windows = global.display.get_tab_list(Meta.TabList.NORMAL_ALL, cws);
-		windows.map(w => {
-			return w.is_attached_dialog() ? w.get_transient_for() : w;
-		}).filter((w, i, a) => !w.skip_taskbar && a.indexOf(w) == i);
+		//~ windows.map(w => {
+			//~ return w.is_attached_dialog() ? w.get_transient_for() : w;
+		//~ }).filter((w, i, a) => !w.skip_taskbar && a.indexOf(w) == i);
 
 		return windows;
 	}
