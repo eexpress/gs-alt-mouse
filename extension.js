@@ -33,10 +33,12 @@ class AltMouse {
 			default:
 		}
 	};
+
 //event.modifier_state()
 //~ BUTTON1_MASK CONTROL_MASK SHIFT_MASK META_MASK SUPER_MASK MOD1_MASK( normally it is the Alt key)
 //~ 11000 alt 10100 ctrl 1010000 super 10001 shift 10000 none
-		//~ if(event.get_state().toString(2) != '11000') return Clutter.EVENT_STOP;
+//~ if(event.get_state().toString(2) != '11000') return Clutter.EVENT_STOP;
+
 	scrollEvent(actor, event) {
 		let direction;
 		switch (event.get_scroll_direction()) {
