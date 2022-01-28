@@ -10,7 +10,7 @@ class AltMouse {
 		this.listPointer = 0;
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
-		this.getWindows().forEach((w)=>{w.decorations.hide()});
+		//~ this.getWindows().forEach((w)=>{w.decorations.hide()});
 	}
 
 	clickEvent(actor, event){
@@ -99,7 +99,7 @@ class AltMouse {
 			global.stage.disconnect(this.clickEventId);
 			this.clickEventId = null;
 		}
-		this.getWindows().forEach((w)=>{w.decorations.show()});
+		//~ this.getWindows().forEach((w)=>{w.decorations.show()});
 
    }
 }
