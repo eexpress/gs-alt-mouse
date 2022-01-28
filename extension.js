@@ -1,5 +1,6 @@
 const { Clutter, Meta, Gdk, Shell } = imports.gi;
 const Main = imports.ui.main;
+const BackgroundMenu = imports.ui.backgroundMenu;
 //~ part fork from: panelScroll
 
 function lg(s){log("===Alt-Mouse===>"+s)}
@@ -9,24 +10,30 @@ class AltMouse {
 		this.previousDirection = Meta.MotionDirection.UP;
 		this.listPointer = 0;
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));
-//~ if has max window, click panel no emit 'button-release-event'????
+//~ If a maximized window here, when use get_buffer_rect(), I got `-1,33, 1922x1048`, so large that made `button-release-event` fail. why the x is `-1` and the y is `33` not `32` ?
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
+
+		this._originals = {};
+		this._backgroundMenu = dependecies['BackgroundMenu'] || null;
+		this.backgroundMenuDisable();
 		//~ this.getWindows().forEach((w)=>{w.decorations.hide()});
 	}
 
 //~ 判断鼠标下面有没有窗口。window_under_pointer
 //~ ‌桌面的按键事件要去掉。
-//~ ‌窗口去掉装饰条。
+//~ ‌窗口去掉装饰条。不想使用外挂的xprop。
 //~ ‌窗口上，全局附加alt键。
 
 	clickEvent(actor, event){
 		let w = global.display.get_focus_window();
+		//~ this.getWindows().forEach((w)=>{this.showinfo(w)});
 		switch (event.get_button()) {
 			case 1:
 				if(w.allows_move())
 				w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
 				return Clutter.EVENT_STOP;
 				break;
+
 			case 2:	//middle click  //Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN
 				if(w.allows_resize())
 				w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
@@ -43,8 +50,8 @@ class AltMouse {
 
 	showinfo(w){
 		lg(w.get_title());
-		//~ const r = w.get_buffer_rect();
-		//~ lg(`${r.x},${r.y}, ${r.width}x${r.height}`);
+		const r = w.get_buffer_rect();
+		lg(`${r.x},${r.y}, ${r.width}x${r.height}`);
 	};
 
 //event.modifier_state()
@@ -103,6 +110,26 @@ class AltMouse {
 		return windows;
 	}
 
+	backgroundMenuEnable()
+    {
+        if (!this._originals['backgroundMenu']) {
+            return;
+        }
+
+        this._backgroundMenu.BackgroundMenu.prototype.open
+        = this._originals['backgroundMenu'];
+    }
+
+    backgroundMenuDisable()
+    {
+        if (!this._originals['backgroundMenu']) {
+            this._originals['backgroundMenu']
+            = this._backgroundMenu.BackgroundMenu.prototype.open;
+        }
+
+        this._backgroundMenu.BackgroundMenu.prototype.open = () => {};
+    }
+
 	destroy() {
 		if (this.scrollEventId != null) {
 			global.stage.disconnect(this.scrollEventId);
@@ -112,6 +139,7 @@ class AltMouse {
 			global.stage.disconnect(this.clickEventId);
 			this.clickEventId = null;
 		}
+		this.backgroundMenuEnable();
 		//~ this.getWindows().forEach((w)=>{w.decorations.show()});
 
    }
