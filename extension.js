@@ -4,20 +4,45 @@ const Main = imports.ui.main;
 
 function lg(s){log("===Alt-Mouse===>"+s)}
 
-class PanelScroll {
+class AltMouse {
 	constructor() {
 		this.previousDirection = Meta.MotionDirection.UP;
 		this.listPointer = 0;
-		//~ this.scrollEventId = Main.panel.connect('scroll-event', this.scrollEvent.bind(this));
+		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
 	}
+
+	clickEvent(actor, event){
+		let windows = this.getWindows();
+		if (windows.length <= 1) return;
+		windows.filter((w)=>{w.has_focus()});
+		let w = windows[0];
+
+		switch (event.get_button()) {
+			case 1:
+				if(w.allows_move())
+				w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
+				return Clutter.EVENT_STOP;
+				break;
+			case 2:	//middle click  Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN
+				if(w.allows_resize())
+				w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
+				return Clutter.EVENT_STOP;
+				break;
+			case 3:
+				w.lower();	//focus still on this window.
+				return Clutter.EVENT_STOP;
+				break;
+			default:
+		}
+	};
 //event.modifier_state()
 //~ BUTTON1_MASK CONTROL_MASK SHIFT_MASK META_MASK SUPER_MASK MOD1_MASK( normally it is the Alt key)
 //~ 11000 alt 10100 ctrl 1010000 super 10001 shift 10000 none
-		scrollEvent(actor, event) {
-			//~ if(event.get_state().toString(2) != '11000') return Clutter.EVENT_STOP;
-			let direction;
-			switch (event.get_scroll_direction()) {
+		//~ if(event.get_state().toString(2) != '11000') return Clutter.EVENT_STOP;
+	scrollEvent(actor, event) {
+		let direction;
+		switch (event.get_scroll_direction()) {
 			case Clutter.ScrollDirection.UP:
 			case Clutter.ScrollDirection.LEFT:
 				direction = Meta.MotionDirection.UP;
@@ -42,8 +67,7 @@ class PanelScroll {
 
 	switchWindows(direction) {
 		let windows = this.getWindows();
-		if (windows.length <= 1)
-			return;
+		if (windows.length <= 1) return;
 
 		if (direction != this.previousDirection) {
 			this.listPointer = 1;
@@ -69,24 +93,28 @@ class PanelScroll {
 
 	destroy() {
 		if (this.scrollEventId != null) {
-			Main.panel.disconnect(this.scrollEventId);
+			global.stage.disconnect(this.scrollEventId);
 			this.scrollEventId = null;
+		}
+		if (this.clickEventId != null) {
+			global.stage.disconnect(this.clickEventId);
+			this.clickEventId = null;
 		}
    }
 }
 
-let panelScroll;
+let altmouse;
 
 function init(metadata) {
 }
 
 function enable() {
 	lg("start");
-	panelScroll = new PanelScroll();
+	altmouse = new AltMouse();
 }
 
 function disable() {
 	lg("stop");
-	panelScroll.destroy();
-	panelScroll = null;
+	altmouse.destroy();
+	altmouse = null;
 }
