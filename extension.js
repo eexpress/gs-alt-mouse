@@ -1,22 +1,25 @@
 const { Clutter, Meta, Gdk, Shell } = imports.gi;
 const Main = imports.ui.main;
-const BackgroundMenu = imports.ui.backgroundMenu;
-//~ part fork from: panelScroll
+const _backgroundMenu = imports.ui.backgroundMenu;
+//~ part fork from: panelScroll, Just Perfection
 
 function lg(s){log("===Alt-Mouse===>"+s)}
+const NeedAltKey = false;
+const DisableBGMenu = true;
 
 class AltMouse {
 	constructor() {
 		this.previousDirection = Meta.MotionDirection.UP;
 		this.listPointer = 0;
-		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));
-//~ If a maximized window here, when use get_buffer_rect(), I got `-1,33, 1922x1048`, so large that made `button-release-event` fail. why the x is `-1` and the y is `33` not `32` ?
-		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
+		if(DisableBGMenu){
+			this._originals = {};
+			this.backgroundMenuDisable();
+		}
 
-		this._originals = {};
-		this._backgroundMenu = dependecies['BackgroundMenu'] || null;
-		this.backgroundMenuDisable();
-		//~ this.getWindows().forEach((w)=>{w.decorations.hide()});
+		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));
+		//~ 鼠标三个按钮需要在桌面双击才有效。
+//~ If a maximized window here, when use get_buffer_rect(), I got `-1,33, 1922x1048`, so large that made `button-release-event` fail? why the x is `-1` and the y is `33` not `32` ?
+		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
 	}
 
 //~ 判断鼠标下面有没有窗口。window_under_pointer
@@ -25,18 +28,18 @@ class AltMouse {
 //~ ‌窗口上，全局附加alt键。
 
 	clickEvent(actor, event){
+		if(NeedAltKey) if (!(event.get_state() & Clutter.ModifierType.MOD1_MASK)) return Clutter.EVENT_PROPAGATE;
+
 		let w = global.display.get_focus_window();
-		//~ this.getWindows().forEach((w)=>{this.showinfo(w)});
 		switch (event.get_button()) {
 			case 1:
 				if(w.allows_move())
 				w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
 				return Clutter.EVENT_STOP;
 				break;
-
-			case 2:	//middle click  //Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN
+			case 2:	//middle click
 				if(w.allows_resize())
-				w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
+				w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());	//Meta.GrabOp.RESIZING_UNKNOWN
 				return Clutter.EVENT_STOP;
 				break;
 			case 3:
@@ -53,11 +56,6 @@ class AltMouse {
 		const r = w.get_buffer_rect();
 		lg(`${r.x},${r.y}, ${r.width}x${r.height}`);
 	};
-
-//event.modifier_state()
-//~ BUTTON1_MASK CONTROL_MASK SHIFT_MASK META_MASK SUPER_MASK MOD1_MASK( normally it is the Alt key)
-//~ 11000 alt 10100 ctrl 1010000 super 10001 shift 10000 none
-//~ if(event.get_state().toString(2) != '11000') return Clutter.EVENT_STOP;
 
 	scrollEvent(actor, event) {
 		let direction;
@@ -110,25 +108,19 @@ class AltMouse {
 		return windows;
 	}
 
-	backgroundMenuEnable()
-    {
-        if (!this._originals['backgroundMenu']) {
-            return;
-        }
+	backgroundMenuEnable() {
+		if (this._originals['backgroundMenu']) _backgroundMenu.BackgroundMenu.prototype.open
+		= this._originals['backgroundMenu'];
+	}
 
-        this._backgroundMenu.BackgroundMenu.prototype.open
-        = this._originals['backgroundMenu'];
-    }
+	backgroundMenuDisable() {
+		if (!this._originals['backgroundMenu']) {
+			this._originals['backgroundMenu']
+			= _backgroundMenu.BackgroundMenu.prototype.open;
+		}
 
-    backgroundMenuDisable()
-    {
-        if (!this._originals['backgroundMenu']) {
-            this._originals['backgroundMenu']
-            = this._backgroundMenu.BackgroundMenu.prototype.open;
-        }
-
-        this._backgroundMenu.BackgroundMenu.prototype.open = () => {};
-    }
+		_backgroundMenu.BackgroundMenu.prototype.open = () => {};
+	}
 
 	destroy() {
 		if (this.scrollEventId != null) {
@@ -139,9 +131,7 @@ class AltMouse {
 			global.stage.disconnect(this.clickEventId);
 			this.clickEventId = null;
 		}
-		this.backgroundMenuEnable();
-		//~ this.getWindows().forEach((w)=>{w.decorations.show()});
-
+		if(DisableBGMenu) this.backgroundMenuEnable();
    }
 }
 
