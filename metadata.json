@@ -2,6 +2,7 @@
   "name": "Alt Mouse",
   "description": "Alt + Mouse control window",
   "uuid": "alt-mouse@eexpss.gmail.com",
+  "url": "https://github.com/eexpress/gnome-shell-alt-mouse",
   "shell-version": [
     "40","41","42"
   ]
