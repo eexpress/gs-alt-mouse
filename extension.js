@@ -1,6 +1,6 @@
 const { Clutter, Meta, Gdk, Shell } = imports.gi;
 const Main = imports.ui.main;
-//~ mixed fork from: panelScroll, Just.P
+//~ part fork from: panelScroll
 
 function lg(s){log("===Alt-Mouse===>"+s)}
 
@@ -10,14 +10,11 @@ class AltMouse {
 		this.listPointer = 0;
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
+		this.getWindows().forEach((w)=>{w.decorations.hide()});
 	}
 
 	clickEvent(actor, event){
-		let windows = this.getWindows();
-		if (windows.length <= 1) return;
-		windows.filter((w)=>{w.has_focus()});
-		let w = windows[0];
-
+		const w = global.display.get_focus_window()
 		switch (event.get_button()) {
 			case 1:
 				if(w.allows_move())
@@ -100,6 +97,8 @@ class AltMouse {
 			global.stage.disconnect(this.clickEventId);
 			this.clickEventId = null;
 		}
+		this.getWindows().forEach((w)=>{w.decorations.show()});
+
    }
 }
 
