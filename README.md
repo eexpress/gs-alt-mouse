@@ -1,7 +1,7 @@
 # gnome-shell-alt-mouse
 Alt + Mouse control window
 
-![diagram](alt-mouse-diagram.png){ width: 466px; }
+![diagram](alt-mouse-diagram.png =466)
 
 -| scroll up/down | butt 1|butt 2(middle)|butt 3
 ---|---|---|---|---
