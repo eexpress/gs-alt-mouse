@@ -1,5 +1,6 @@
 const { Clutter, Meta, Gdk, Shell } = imports.gi;
 const Main = imports.ui.main;
+const AltTab = imports.ui.altTab;
 const _backgroundMenu = imports.ui.backgroundMenu;
 //~ part fork from: panelScroll, Just Perfection
 
@@ -95,7 +96,7 @@ class AltMouse {
 					else w.make_fullscreen();
 				}
 			} else {
-				//~ if(w.can_minimize()) w.minimize();
+				//~ if(w.can_shade()) if(w.is_shaded()) w.unshade(event.get_time()); else w.shade(event.get_time());	//shade后，丢焦点。w is null
 			}
 		} else this.switchWindows(direction);
 
@@ -118,14 +119,7 @@ class AltMouse {
 	}
 
 	getWindows() {
-		let cws = global.workspace_manager.get_active_workspace();
-
-		let windows = global.display.get_tab_list(Meta.TabList.NORMAL_ALL, cws);
-		//~ windows.map(w => {
-			//~ return w.is_attached_dialog() ? w.get_transient_for() : w;
-		//~ }).filter((w, i, a) => !w.skip_taskbar && a.indexOf(w) == i);
-
-		return windows;
+		return AltTab.getWindows(global.workspace_manager.get_active_workspace());
 	}
 
 	backgroundMenuEnable() {
