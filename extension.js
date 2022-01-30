@@ -4,7 +4,9 @@ const AltTab = imports.ui.altTab;
 const _backgroundMenu = imports.ui.backgroundMenu;
 //~ part fork from: panelScroll, Just Perfection
 
-function lg(s){log("===Alt-Mouse===>"+s)};
+const Me = imports.misc.extensionUtils.getCurrentExtension();
+function lg(s){log("==="+Me.uuid.split('@')[0]+"===>"+s)};
+
 const DisableBGMenu = true;
 const maxflag = Meta.MaximizeFlags.VERTICAL
 //~ Meta.MaximizeFlags.BOTH
@@ -29,6 +31,17 @@ class AltMouse {
 
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));	//~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
+		global.stage.connect('captured-event', (actor, event) => {
+            if (event.type() == Clutter.EventType.KEY_PRESS || event.type() == Clutter.EventType.BUTTON_PRESS){
+				if(event.get_state() & Clutter.ModifierType.MOD1_MASK){
+					let [x, y] = global.get_pointer();
+					lg(x+","+y);	//only desktop+panel
+					let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
+					lg(pickedActor.get_name());	//null+panel
+				}
+			}
+			return Clutter.EVENT_PROPAGATE;
+		});
 	}
 
 
@@ -105,6 +118,7 @@ class AltMouse {
 
 	switchWindows(direction) {
 		let windows = this.getWindows();
+		//~ windows.forEach(w => this.showinfo(w));
 		if (windows.length <= 1) return;
 
 		if (direction != this.previousDirection) {
