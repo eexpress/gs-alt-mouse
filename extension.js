@@ -31,17 +31,17 @@ class AltMouse {
 
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));	//~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
-		global.stage.connect('captured-event', (actor, event) => {
-            if (event.type() == Clutter.EventType.KEY_PRESS || event.type() == Clutter.EventType.BUTTON_PRESS){
-				if(event.get_state() & Clutter.ModifierType.MOD1_MASK){
-					let [x, y] = global.get_pointer();
-					lg(x+","+y);	//only desktop+panel
-					let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
-					lg(pickedActor.get_name());	//null+panel
-				}
-			}
-			return Clutter.EVENT_PROPAGATE;
-		});
+		//~ global.stage.connect('captured-event', (actor, event) => {
+            //~ if (event.type() == Clutter.EventType.KEY_PRESS || event.type() == Clutter.EventType.BUTTON_PRESS){
+				//~ if(event.get_state() & Clutter.ModifierType.MOD1_MASK){
+					//~ let [x, y] = global.get_pointer();
+					//~ lg(x+","+y);	//only desktop+panel
+					//~ let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
+					//~ lg(pickedActor.get_name());	//null+panel
+				//~ }
+			//~ }
+			//~ return Clutter.EVENT_PROPAGATE;
+		//~ });
 	}
 
 
