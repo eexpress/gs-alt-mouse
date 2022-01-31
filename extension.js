@@ -14,6 +14,7 @@ const maxflag = Meta.MaximizeFlags.VERTICAL
 //~ Meta.MaximizeFlags.VERTICAL
 
 //~ TODO:
+//~ 用 get_actor_at_pos 判断下面是panel而不是其他扩展菜单。如果能区分，就只在panel上alt按键有效。
 //~ 判断鼠标下面有没有窗口。window_under_pointer
 //~ ‌窗口去掉装饰条。不想使用外挂的xprop。
 //~ ‌窗口上，全局附加alt键。
@@ -31,10 +32,11 @@ class AltMouse {
 
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));	//~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
+		//~ -------------------------------------
 		//~ global.stage.connect('captured-event', (actor, event) => {
             //~ if (event.type() == Clutter.EventType.KEY_PRESS || event.type() == Clutter.EventType.BUTTON_PRESS){
 				//~ if(event.get_state() & Clutter.ModifierType.MOD1_MASK){
-					//~ let [x, y] = global.get_pointer();
+					//~ let [x, y, mods] = global.get_pointer();
 					//~ lg(x+","+y);	//only desktop+panel
 					//~ let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
 					//~ lg(pickedActor.get_name());	//null+panel
@@ -42,6 +44,8 @@ class AltMouse {
 			//~ }
 			//~ return Clutter.EVENT_PROPAGATE;
 		//~ });
+		//~ global.display.connect('notify::focus-window',
+		//~ -------------------------------------
 	}
 
 
@@ -57,6 +61,8 @@ class AltMouse {
 				}
 				if(w.allows_move())
 				w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
+				//~ Window manager warning: Attempt to perform window operation 1 on window 0x2000007 when operation 2 on none already in effect
+				//~ 点面板的扩展，光标跳到w的中心，但没触发移动。要屏蔽扩展上的点击。Actor.get_name==null
 				return Clutter.EVENT_STOP;
 				break;
 			case 2:	//middle click
