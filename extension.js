@@ -20,7 +20,7 @@ const maxflag = Meta.MaximizeFlags.VERTICAL
 //~ ‌窗口上，全局附加alt键。
 //~ max后，面板正上方面板反正失效。
 //~ 全屏后，无法点击。需要全局控制权。
-//~ If a maximized window here, when use get_buffer_rect(), I got `-1,33, 1922x1048`, so large that made `button-release-event` fail? why the x is `-1` and the y is `33` not `32` ? w.get_frame_rect();	//~ get_buffer_rect include shadows
+//~ w.get_frame_rect();	//~ get_buffer_rect include shadows
 
 class AltMouse {
 	constructor() {
@@ -31,17 +31,10 @@ class AltMouse {
 
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));	//~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
-		//~ -------------------------------------
-		//~ global.stage.connect('captured-event', (actor, event) => {
-            //~ if (event.type() == Clutter.EventType.KEY_PRESS || event.type() == Clutter.EventType.BUTTON_PRESS){
-				//~ }
-			//~ }
-		//~ });
-		//~ -------------------------------------
 	}
 
 	clickEvent(actor, event){
-		//~ 跳过扩展的图标，y座标小于面板高度，且无名字。
+		//~ 跳过扩展的图标：y座标小于面板高度，且无名字。
 		let [x, y] = global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
 		if(pickedActor.get_name() == 'panel') panelheight = pickedActor.get_height();
@@ -52,26 +45,27 @@ class AltMouse {
 		let w = global.display.get_focus_window();
 		switch (event.get_button()) {
 			case 1:
-				if(altkey){if(w.get_maximized() != maxflag){w.maximize(maxflag);}
-					else{w.unmaximize(maxflag);}
-					return Clutter.EVENT_STOP;
+				if(altkey){		//最大化
+					if(w.get_maximized() != maxflag) w.maximize(maxflag);
+					else w.unmaximize(maxflag);
+				} else {		//移动
+					if(w.allows_move()) w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
 				}
-				if(w.allows_move())
-				w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
 				return Clutter.EVENT_STOP;
-				break;
-			case 2:	//middle click
-				if(altkey){if(w.can_close()) w.kill(); return Clutter.EVENT_STOP;}
-				if(w.allows_resize())
-				w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());	//Meta.GrabOp.RESIZING_UNKNOWN
+			case 2:	//中键
+				if(altkey){		//全屏
+					if(w.can_maximize()) if(w.is_fullscreen()) w.unmake_fullscreen(); else w.make_fullscreen();
+				} else {		//调大小
+					if(w.allows_resize()) w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
+				}
 				return Clutter.EVENT_STOP;
-				break;
 			case 3:
-				if(altkey){if(w.can_minimize()) w.minimize(); return Clutter.EVENT_STOP;}
-				w.lower();
-				this.switchWindows(Meta.MotionDirection.UP);
+				if(altkey){		//关闭
+					if(w.can_close()) w.kill();
+				} else {		//置底。追加上滚聚焦，滚轮下滚可立刻恢复。
+					w.lower(); this.switchWindows(Meta.MotionDirection.UP);
+				}
 				return Clutter.EVENT_STOP;
-				break;
 			default:
 				return Clutter.EVENT_PROPAGATE;
 		}
@@ -91,19 +85,7 @@ class AltMouse {
 			default:
 				return Clutter.EVENT_PROPAGATE;
 		}
-
-		if (event.get_state() & Clutter.ModifierType.MOD1_MASK){
-			let w = global.display.get_focus_window();
-			if(direction == Meta.MotionDirection.UP){
-				if(w.can_maximize()){
-					if(w.is_fullscreen()) w.unmake_fullscreen();
-					else w.make_fullscreen();
-				}
-			} else {
-				//~ if(w.can_shade()) if(w.is_shaded()) w.unshade(event.get_time()); else w.shade(event.get_time());	//shade后，丢焦点。w is null
-			}
-		} else this.switchWindows(direction);
-
+		this.switchWindows(direction);	//切换
 		return Clutter.EVENT_STOP;
 	}
 
@@ -129,7 +111,6 @@ class AltMouse {
 
 	getWindows() {
 		return AltTab.getWindows(global.workspace_manager.get_active_workspace());
-		//~ let windows = global.display.get_tab_list(Meta.TabList.NORMAL_ALL, cws);
 	}
 
 	backgroundMenuEnable() {
