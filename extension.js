@@ -7,6 +7,7 @@ const _backgroundMenu = imports.ui.backgroundMenu;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 function lg(s){log("==="+Me.uuid.split('@')[0]+"===>"+s)};
 
+let panelheight = 34;
 const DisableBGMenu = true;
 const maxflag = Meta.MaximizeFlags.VERTICAL
 //~ Meta.MaximizeFlags.BOTH
@@ -14,14 +15,12 @@ const maxflag = Meta.MaximizeFlags.VERTICAL
 //~ Meta.MaximizeFlags.VERTICAL
 
 //~ TODO:
-//~ 用 get_actor_at_pos 判断下面是panel而不是其他扩展菜单。如果能区分，就只在panel上alt按键有效。
 //~ 判断鼠标下面有没有窗口。window_under_pointer
 //~ ‌窗口去掉装饰条。不想使用外挂的xprop。
 //~ ‌窗口上，全局附加alt键。
-//~ ‌桌面的按键事件要去掉。目前只能双击，产生事件。
 //~ max后，面板正上方面板反正失效。
 //~ 全屏后，无法点击。需要全局控制权。
-//~ If a maximized window here, when use get_buffer_rect(), I got `-1,33, 1922x1048`, so large that made `button-release-event` fail? why the x is `-1` and the y is `33` not `32` ?
+//~ If a maximized window here, when use get_buffer_rect(), I got `-1,33, 1922x1048`, so large that made `button-release-event` fail? why the x is `-1` and the y is `33` not `32` ? w.get_frame_rect();	//~ get_buffer_rect include shadows
 
 class AltMouse {
 	constructor() {
@@ -35,21 +34,19 @@ class AltMouse {
 		//~ -------------------------------------
 		//~ global.stage.connect('captured-event', (actor, event) => {
             //~ if (event.type() == Clutter.EventType.KEY_PRESS || event.type() == Clutter.EventType.BUTTON_PRESS){
-				//~ if(event.get_state() & Clutter.ModifierType.MOD1_MASK){
-					//~ let [x, y, mods] = global.get_pointer();
-					//~ lg(x+","+y);	//only desktop+panel
-					//~ let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
-					//~ lg(pickedActor.get_name());	//null+panel
 				//~ }
 			//~ }
-			//~ return Clutter.EVENT_PROPAGATE;
 		//~ });
-		//~ global.display.connect('notify::focus-window',
 		//~ -------------------------------------
 	}
 
-
 	clickEvent(actor, event){
+		//~ 跳过扩展的图标，y座标小于面板高度，且无名字。
+		let [x, y] = global.get_pointer();
+		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
+		if(pickedActor.get_name() == 'panel') panelheight = pickedActor.get_height();
+		if(y<panelheight && pickedActor.get_name() == null) return Clutter.EVENT_PROPAGATE;
+
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
 
 		let w = global.display.get_focus_window();
@@ -61,8 +58,6 @@ class AltMouse {
 				}
 				if(w.allows_move())
 				w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
-				//~ Window manager warning: Attempt to perform window operation 1 on window 0x2000007 when operation 2 on none already in effect
-				//~ 点面板的扩展，光标跳到w的中心，但没触发移动。要屏蔽扩展上的点击。Actor.get_name==null
 				return Clutter.EVENT_STOP;
 				break;
 			case 2:	//middle click
@@ -82,12 +77,6 @@ class AltMouse {
 		}
 	};
 
-	showinfo(w){
-		lg(w.get_title());
-		const r = w.get_buffer_rect();
-		lg(`${r.x},${r.y}, ${r.width}x${r.height}`);
-	};
-
 	scrollEvent(actor, event) {
 		let direction;
 		switch (event.get_scroll_direction()) {
@@ -103,10 +92,6 @@ class AltMouse {
 				return Clutter.EVENT_PROPAGATE;
 		}
 
-		//~ let gap = event.get_time() - this._time;
-		//~ if (gap < 500 && gap >= 0)
-			//~ return Clutter.EVENT_STOP;
-		//~ this._time = event.get_time();
 		if (event.get_state() & Clutter.ModifierType.MOD1_MASK){
 			let w = global.display.get_focus_window();
 			if(direction == Meta.MotionDirection.UP){
@@ -121,6 +106,10 @@ class AltMouse {
 
 		return Clutter.EVENT_STOP;
 	}
+
+	showinfo(w){
+		lg(w.get_title());
+	};
 
 	switchWindows(direction) {
 		let windows = this.getWindows();
@@ -140,6 +129,7 @@ class AltMouse {
 
 	getWindows() {
 		return AltTab.getWindows(global.workspace_manager.get_active_workspace());
+		//~ let windows = global.display.get_tab_list(Meta.TabList.NORMAL_ALL, cws);
 	}
 
 	backgroundMenuEnable() {
