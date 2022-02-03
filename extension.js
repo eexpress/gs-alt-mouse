@@ -96,6 +96,7 @@ class AltMouse {
 	switchWindows(direction) {
 		let windows = this.getWindows();
 		//~ windows.forEach(w => this.showinfo(w));
+		//~ windows.forEach((w) => {w.decorated = false;});	//Property MetaWindowX11.decorated is not writable 但是 Gtk 的进程里面可以。
 		if (windows.length <= 1) return;
 
 		if (direction != this.previousDirection) {
