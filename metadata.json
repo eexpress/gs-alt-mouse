@@ -1,6 +1,6 @@
 {
   "name": "Alt Mouse",
-  "description": "Alt + Mouse control window",
+  "description": "Alt + Mouse control window, Detailed instructions are on the home page.",
   "uuid": "alt-mouse@eexpss.gmail.com",
   "url": "https://github.com/eexpress/gnome-shell-alt-mouse",
   "shell-version": [
