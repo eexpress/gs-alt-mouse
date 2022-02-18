@@ -73,29 +73,56 @@ class AltMouse {
 			default:
 				return Clutter.EVENT_PROPAGATE;
 		}
-	};
+	}
+
+	//direction +1 / -1, 0 toggles mute
+	adjustVolume(direction) {	// GdH method
+		const Volume = imports.ui.status.volume;
+		let mixerControl = Volume.getMixerControl();
+		let sink = mixerControl.get_default_sink();
+
+		if (direction === 0) {
+			sink.change_is_muted(!sink.is_muted);
+		} else {
+			let volume = sink.volume;
+			let max = mixerControl.get_vol_max_norm();
+			let step = direction * 2048;
+
+			volume = volume + step;
+			if (volume > max) volume = max;
+			if (volume < 0)	volume = 0;
+			sink.volume = volume;
+			sink.push_volume();
+		}
+	}
 
 	scrollEvent(actor, event) {
+		//~ const GdH = true;
+		const GdH = false;
 		if(this.skip_extensions())  return Clutter.EVENT_PROPAGATE;
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
-		if(altkey){
+		if(altkey && ! GdH){	// Just.P method
 			aggregateMenu._volume._handleScrollEvent(0, event);
 			return Clutter.EVENT_STOP;
 		}
+		let adj;// GdH method
 		let direction;
 		switch (event.get_scroll_direction()) {
 			case Clutter.ScrollDirection.UP:
 			case Clutter.ScrollDirection.LEFT:
 				direction = Meta.MotionDirection.UP;
+				adj = 1;// GdH method
 				break;
 			case Clutter.ScrollDirection.DOWN:
 			case Clutter.ScrollDirection.RIGHT:
 				direction = Meta.MotionDirection.DOWN;
+				adj = -1;// GdH method
 				break;
 			default:
 				return Clutter.EVENT_PROPAGATE;
 		}
+		if(altkey && GdH) this.adjustVolume(adj); else	// GdH method
 		this.switchWindows(direction);	//切换
 		return Clutter.EVENT_STOP;
 	}
