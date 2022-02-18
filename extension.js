@@ -5,7 +5,8 @@ const _backgroundMenu = imports.ui.backgroundMenu;
 //~ part fork from: panelScroll, Just Perfection
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-function lg(s){log("==="+Me.uuid.split('@')[0]+"===>"+s)};
+const debug = true;
+function lg(s){ if(debug) log("==="+Me.uuid.split('@')[0]+"===>"+s )};
 
 let panelheight = 34;
 const DisableBGMenu = true;
@@ -33,12 +34,18 @@ class AltMouse {
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
 	}
 
-	clickEvent(actor, event){
+	skip_extensions(){
 		//~ 跳过扩展的图标：y座标小于面板高度，且无名字。
 		let [x, y] = global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
 		if(pickedActor.get_name() == 'panel') panelheight = pickedActor.get_height();
-		if(y<panelheight && pickedActor.get_name() == null) return Clutter.EVENT_PROPAGATE;
+		//~ lg(pickedActor.get_name());
+		if(y<panelheight && pickedActor.get_name() == null) return true;
+		else return false;
+	}
+
+	clickEvent(actor, event){
+		if(this.skip_extensions()) return  Clutter.EVENT_PROPAGATE;
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
 
@@ -72,6 +79,16 @@ class AltMouse {
 	};
 
 	scrollEvent(actor, event) {
+		if(this.skip_extensions())  return Clutter.EVENT_PROPAGATE;
+
+		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
+		if(altkey){
+			const Volume = imports.ui.status.volume;
+			//~ Volume.StreamSlider.scroll(event);
+			Volume.Indicator._handleScrollEvent(0, event);
+			//~ Volume.StreamSlider._slider.scroll(event);
+			return Clutter.EVENT_STOP;
+		}
 		let direction;
 		switch (event.get_scroll_direction()) {
 			case Clutter.ScrollDirection.UP:
