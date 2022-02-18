@@ -2,18 +2,16 @@ const { Clutter, Meta, Gdk, Shell } = imports.gi;
 const Main = imports.ui.main;
 const AltTab = imports.ui.altTab;
 const _backgroundMenu = imports.ui.backgroundMenu;
-//~ part fork from: panelScroll, Just Perfection
+//~ part fork from: Just Perfection, panelScroll
+const aggregateMenu = Main.panel.statusArea.aggregateMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
-const debug = true;
+const debug = false;
 function lg(s){ if(debug) log("==="+Me.uuid.split('@')[0]+"===>"+s )};
 
 let panelheight = 34;
 const DisableBGMenu = true;
-const maxflag = Meta.MaximizeFlags.VERTICAL
-//~ Meta.MaximizeFlags.BOTH
-//~ Meta.MaximizeFlags.HORIZONTAL
-//~ Meta.MaximizeFlags.VERTICAL
+const maxflag = Meta.MaximizeFlags.VERTICAL;
 
 //~ TODO:
 //~ 判断鼠标下面有没有窗口。window_under_pointer
@@ -39,7 +37,6 @@ class AltMouse {
 		let [x, y] = global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
 		if(pickedActor.get_name() == 'panel') panelheight = pickedActor.get_height();
-		//~ lg(pickedActor.get_name());
 		if(y<panelheight && pickedActor.get_name() == null) return true;
 		else return false;
 	}
@@ -83,10 +80,7 @@ class AltMouse {
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
 		if(altkey){
-			const Volume = imports.ui.status.volume;
-			//~ Volume.StreamSlider.scroll(event);
-			Volume.Indicator._handleScrollEvent(0, event);
-			//~ Volume.StreamSlider._slider.scroll(event);
+			aggregateMenu._volume._handleScrollEvent(0, event);
 			return Clutter.EVENT_STOP;
 		}
 		let direction;
