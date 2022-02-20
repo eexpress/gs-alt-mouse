@@ -51,6 +51,7 @@ class AltMouse {
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
 
 		let w = global.display.get_focus_window();
+		if(!w) return Clutter.EVENT_PROPAGATE;
 		switch (event.get_button()) {
 		case 1:
 			if (altkey) { //最大化
