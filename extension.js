@@ -1,12 +1,13 @@
 const { Clutter, Meta, Gdk, Shell } = imports.gi;
 const Main = imports.ui.main;
+const Me = imports.misc.extensionUtils.getCurrentExtension();
 const AltTab = imports.ui.altTab;
 const _backgroundMenu = imports.ui.backgroundMenu;
 //~ part fork from: Just Perfection, panelScroll
 const aggregateMenu = Main.panel.statusArea.aggregateMenu;
 
-const Me = imports.misc.extensionUtils.getCurrentExtension();
 const debug = false;
+//~ const debug = true;
 function lg(s) {
 	if (debug) log("===" + Me.uuid.split('@')[0] + "===>" + s)
 };
@@ -51,32 +52,34 @@ class AltMouse {
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
 
 		let w = global.display.get_focus_window();
-		if(!w) return Clutter.EVENT_PROPAGATE;
+		if (!w) return Clutter.EVENT_PROPAGATE;
 		switch (event.get_button()) {
 		case 1:
-			if (altkey) { //最大化
-				if (w.get_maximized() != maxflag)
-					w.maximize(maxflag);
+			if (altkey) { //全屏，全屏后无法再点击恢复。提前设置alt-f12恢复。
+				//~ if (w.can_maximize())
+				//~ if (w.is_fullscreen()) w.unmake_fullscreen();
+				//~ else w.make_fullscreen();
+				if (w.is_above())
+					w.unmake_above();
 				else
-					w.unmaximize(maxflag);
+					w.make_above();
 			} else { //移动
 				if (w.allows_move()) w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
 			}
 			return Clutter.EVENT_STOP;
 		case 2: //中键
-			if (altkey) { //全屏
-				if (w.can_maximize())
-					if (w.is_fullscreen())
-						w.unmake_fullscreen();
-					else
-						w.make_fullscreen();
+			if (altkey) { //关闭
+				if (w.can_close()) w.kill();
 			} else { //调大小
 				if (w.allows_resize()) w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
 			}
 			return Clutter.EVENT_STOP;
 		case 3:
-			if (altkey) { //关闭
-				if (w.can_close()) w.kill();
+			if (altkey) { //最大化。最大化后，窗口正上方面板不能 1 键点击了。
+				if (w.get_maximized() != maxflag)
+					w.maximize(maxflag);
+				else
+					w.unmaximize(maxflag);
 			} else { //置底。追加上滚聚焦，滚轮下滚可立刻恢复。
 				w.lower();
 				this.switchWindows(Meta.MotionDirection.UP);
