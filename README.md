@@ -1,6 +1,9 @@
 # gnome-shell-alt-mouse
 Alt + Mouse control window
 
+[<img alt="" height="80" src="https://raw.githubusercontent.com/andyholmes/gnome-shell-extensions-badge/master/get-it-on-ego.svg?sanitize=true">](https://extensions.gnome.org/extension/4786/alt-mouse/)
+
+
 ![diagram](alt-mouse-diagram.png)
 
 -| scroll up/down | butt 1|butt 2(middle)|butt 3
