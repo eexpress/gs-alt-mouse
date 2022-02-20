@@ -7,7 +7,9 @@ const aggregateMenu = Main.panel.statusArea.aggregateMenu;
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const debug = false;
-function lg(s){ if(debug) log("==="+Me.uuid.split('@')[0]+"===>"+s )};
+function lg(s) {
+	if (debug) log("===" + Me.uuid.split('@')[0] + "===>" + s)
+};
 
 let panelheight = 34;
 const DisableBGMenu = true;
@@ -26,57 +28,66 @@ class AltMouse {
 		this.previousDirection = Meta.MotionDirection.UP;
 		this.listPointer = 0;
 		this._originals = {};
-		if(DisableBGMenu) this.backgroundMenuDisable();
+		if (DisableBGMenu) this.backgroundMenuDisable();
 
-		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));	//~ 鼠标三个按钮需要在桌面双击才有效。
+		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this)); //~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
 	}
 
-	skip_extensions(){
+	skip_extensions() {
 		//~ 跳过扩展的图标：y座标小于面板高度，且无名字。
 		let [x, y] = global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
-		if(pickedActor.get_name() == 'panel') panelheight = pickedActor.get_height();
-		if(y<panelheight && pickedActor.get_name() == null) return true;
-		else return false;
+		if (pickedActor.get_name() == 'panel') panelheight = pickedActor.get_height();
+		if (y < panelheight && pickedActor.get_name() == null)
+			return true;
+		else
+			return false;
 	}
 
-	clickEvent(actor, event){
-		if(this.skip_extensions()) return  Clutter.EVENT_PROPAGATE;
+	clickEvent(actor, event) {
+		if (this.skip_extensions()) return Clutter.EVENT_PROPAGATE;
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
 
 		let w = global.display.get_focus_window();
 		switch (event.get_button()) {
-			case 1:
-				if(altkey){		//最大化
-					if(w.get_maximized() != maxflag) w.maximize(maxflag);
-					else w.unmaximize(maxflag);
-				} else {		//移动
-					if(w.allows_move()) w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
-				}
-				return Clutter.EVENT_STOP;
-			case 2:	//中键
-				if(altkey){		//全屏
-					if(w.can_maximize()) if(w.is_fullscreen()) w.unmake_fullscreen(); else w.make_fullscreen();
-				} else {		//调大小
-					if(w.allows_resize()) w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
-				}
-				return Clutter.EVENT_STOP;
-			case 3:
-				if(altkey){		//关闭
-					if(w.can_close()) w.kill();
-				} else {		//置底。追加上滚聚焦，滚轮下滚可立刻恢复。
-					w.lower(); this.switchWindows(Meta.MotionDirection.UP);
-				}
-				return Clutter.EVENT_STOP;
-			default:
-				return Clutter.EVENT_PROPAGATE;
+		case 1:
+			if (altkey) { //最大化
+				if (w.get_maximized() != maxflag)
+					w.maximize(maxflag);
+				else
+					w.unmaximize(maxflag);
+			} else { //移动
+				if (w.allows_move()) w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
+			}
+			return Clutter.EVENT_STOP;
+		case 2: //中键
+			if (altkey) { //全屏
+				if (w.can_maximize())
+					if (w.is_fullscreen())
+						w.unmake_fullscreen();
+					else
+						w.make_fullscreen();
+			} else { //调大小
+				if (w.allows_resize()) w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
+			}
+			return Clutter.EVENT_STOP;
+		case 3:
+			if (altkey) { //关闭
+				if (w.can_close()) w.kill();
+			} else { //置底。追加上滚聚焦，滚轮下滚可立刻恢复。
+				w.lower();
+				this.switchWindows(Meta.MotionDirection.UP);
+			}
+			return Clutter.EVENT_STOP;
+		default:
+			return Clutter.EVENT_PROPAGATE;
 		}
 	}
 
-	//direction +1 / -1, 0 toggles mute
-	adjustVolume(direction) {	// GdH method
+	// direction +1 / -1, 0 toggles mute
+	adjustVolume(direction) { // GdH method
 		const Volume = imports.ui.status.volume;
 		let mixerControl = Volume.getMixerControl();
 		let sink = mixerControl.get_default_sink();
@@ -90,7 +101,7 @@ class AltMouse {
 
 			volume = volume + step;
 			if (volume > max) volume = max;
-			if (volume < 0)	volume = 0;
+			if (volume < 0) volume = 0;
 			sink.volume = volume;
 			sink.push_volume();
 		}
@@ -99,35 +110,37 @@ class AltMouse {
 	scrollEvent(actor, event) {
 		//~ const GdH = true;
 		const GdH = false;
-		if(this.skip_extensions())  return Clutter.EVENT_PROPAGATE;
+		if (this.skip_extensions()) return Clutter.EVENT_PROPAGATE;
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
-		if(altkey && ! GdH){	// Just.P method
+		if (altkey && !GdH) { // Just.P method
 			aggregateMenu._volume._handleScrollEvent(0, event);
 			return Clutter.EVENT_STOP;
 		}
-		let adj;// GdH method
+		let adj; // GdH method
 		let direction;
 		switch (event.get_scroll_direction()) {
-			case Clutter.ScrollDirection.UP:
-			case Clutter.ScrollDirection.LEFT:
-				direction = Meta.MotionDirection.UP;
-				adj = 1;// GdH method
-				break;
-			case Clutter.ScrollDirection.DOWN:
-			case Clutter.ScrollDirection.RIGHT:
-				direction = Meta.MotionDirection.DOWN;
-				adj = -1;// GdH method
-				break;
-			default:
-				return Clutter.EVENT_PROPAGATE;
+		case Clutter.ScrollDirection.UP:
+		case Clutter.ScrollDirection.LEFT:
+			direction = Meta.MotionDirection.UP;
+			adj = 1; // GdH method
+			break;
+		case Clutter.ScrollDirection.DOWN:
+		case Clutter.ScrollDirection.RIGHT:
+			direction = Meta.MotionDirection.DOWN;
+			adj = -1; // GdH method
+			break;
+		default:
+			return Clutter.EVENT_PROPAGATE;
 		}
-		if(altkey && GdH) this.adjustVolume(adj); else	// GdH method
-		this.switchWindows(direction);	//切换
+		if (altkey && GdH)
+			this.adjustVolume(adj);
+		else // GdH method
+			this.switchWindows(direction); //切换
 		return Clutter.EVENT_STOP;
 	}
 
-	showinfo(w){
+	showinfo(w) {
 		lg(w.get_title());
 	};
 
@@ -143,7 +156,7 @@ class AltMouse {
 		} else {
 			this.listPointer += 1;
 			if (this.listPointer > windows.length - 1)
-				this.listPointer = windows.length -1;
+				this.listPointer = windows.length - 1;
 		}
 		this.previousDirection = direction;
 		windows[this.listPointer].activate(global.get_current_time());
@@ -172,8 +185,8 @@ class AltMouse {
 			global.stage.disconnect(this.clickEventId);
 			this.clickEventId = null;
 		}
-		if(DisableBGMenu) this.backgroundMenuEnable();
-   }
+		if (DisableBGMenu) this.backgroundMenuEnable();
+	}
 }
 
 let altmouse;
