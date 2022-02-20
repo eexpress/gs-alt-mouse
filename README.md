@@ -10,7 +10,7 @@ Alt + Mouse control window
 -| scroll up/down | butt 1|butt 2(middle)|butt 3
 ---|---|---|---|---
 panel/desktop[^1] | switch window|move[^3]|resize|lower[^2]
-Alt + |volume|max[^3]|fullscreen[^4]|close
+Alt + panel/desktop|volume|above|close|max(VERTICAL)
 
 [^1]: 鼠标三个按钮需要在桌面**双击**才有效。The three mouse buttons need to be **double clicked** on the desktop to be effective.
 [^2]: 窗口置底/最小化后，滚轮下滚，可立刻恢复原貌。After the window is lower / minimized, the roller rolls down to restore the original appearance immediately.
