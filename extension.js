@@ -12,17 +12,18 @@ function lg(s) {
 	if (debug) log("===" + Me.uuid.split('@')[0] + "===>" + s)
 };
 
-let panelheight = 34;
 const DisableBGMenu = true;
 const maxflag = Meta.MaximizeFlags.VERTICAL;
 let rightPanel = null;
+const gap = 8;
+
 //~ TODO:
 //~ 判断鼠标下面有没有窗口。window_under_pointer
 //~ ‌窗口去掉装饰条。不想使用外挂的xprop。
 //~ ‌窗口上，全局附加alt键。
-//~ max后，面板正上方面板反正失效。
-//~ 全屏后，无法点击。需要全局控制权。
-//~ w.get_frame_rect();	//~ get_buffer_rect include shadows
+//~ panel.js中参见(#L595-L600)，maximized_vertically后(#L812)，panel变成dragWindow状态，导致panel正上方点击失效。
+//~ 全屏后，panel消失，无法点击。需要全局控制权。
+//~ 桌面双击才有效
 
 class AltMouse {
 	constructor() {
@@ -36,14 +37,12 @@ class AltMouse {
 	}
 
 	skip_extensions() {
-		//~ 跳过扩展的图标：y座标小于面板高度，且无名字。
 		let [x, y] = global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
-		if (pickedActor.get_name() == 'panel') panelheight = pickedActor.get_height();
-		if (y < panelheight && pickedActor.get_name() == null)
-			return true;
-		else
-			return false;
+		if (pickedActor.get_name() == 'panel') return false; // panel
+		if (pickedActor.width == Main.layoutManager.primaryMonitor.width) return false; // desktop
+		if (pickedActor.width == gap) return false; // gap
+		return true;
 	}
 
 	clickEvent(actor, event) {
@@ -171,10 +170,12 @@ class AltMouse {
 	}
 
 	backgroundMenuEnable() {
+		//~ _backgroundMenu.reactive = true;
 		if (this._originals['bgMenu']) _backgroundMenu.BackgroundMenu.prototype.open = this._originals['bgMenu'];
 	}
 
 	backgroundMenuDisable() {
+		//~ _backgroundMenu.reactive = false;
 		if (!this._originals['bgMenu']) this._originals['bgMenu'] = _backgroundMenu.BackgroundMenu.prototype.open;
 
 		_backgroundMenu.BackgroundMenu.prototype.open = () => {};
@@ -201,7 +202,6 @@ function init(metadata) {
 function enable() {
 	lg("start");
 	//~ This part copy from `Edge Gap`, Its idea is in line with me.
-	const gap = 6;
 	const monitor = Main.layoutManager.primaryMonitor;
 	rightPanel = new St.Bin({
 		reactive : false,
