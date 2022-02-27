@@ -1,4 +1,4 @@
-const { Clutter, Meta, Gdk, Shell } = imports.gi;
+const { Clutter, Meta, Gdk, Shell, St } = imports.gi;
 const Main = imports.ui.main;
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 const AltTab = imports.ui.altTab;
@@ -15,7 +15,7 @@ function lg(s) {
 let panelheight = 34;
 const DisableBGMenu = true;
 const maxflag = Meta.MaximizeFlags.VERTICAL;
-
+let rightPanel = null;
 //~ TODO:
 //~ 判断鼠标下面有没有窗口。window_under_pointer
 //~ ‌窗口去掉装饰条。不想使用外挂的xprop。
@@ -200,11 +200,29 @@ function init(metadata) {
 
 function enable() {
 	lg("start");
+	//~ This part copy from `Edge Gap`, Its idea is in line with me.
+	const gap = 6;
+	const monitor = Main.layoutManager.primaryMonitor;
+	rightPanel = new St.Bin({
+		reactive : false,
+		can_focus : false,
+		track_hover : false,
+		height : monitor.height,
+		width : gap,
+	});
+	rightPanel.set_position(monitor.width - gap, 0);
+	Main.layoutManager.addChrome(rightPanel, {
+		affectsInputRegion : true,
+		affectsStruts : true,
+	});
 	altmouse = new AltMouse();
 }
 
 function disable() {
 	lg("stop");
+	Main.layoutManager.removeChrome(rightPanel);
+	rightPanel.destroy();
+	rightPanel = null;
 	altmouse.destroy();
 	altmouse = null;
 }
