@@ -70,7 +70,7 @@ class AltMouse {
 			if (altkey) { //关闭
 				if (w.can_close()) w.kill();
 			} else { //调大小
-				if (w.allows_resize()) w.begin_grab_op(Meta.GrabOp.RESIZING_SE, true, event.get_time());
+				if (w.allows_resize()) w.begin_grab_op(Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN, true, event.get_time());
 			}
 			return Clutter.EVENT_STOP;
 		case 3:
