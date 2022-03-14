@@ -34,6 +34,7 @@ class AltMouse {
 
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this)); //~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
+		this.add_hot_corner();
 	}
 
 	skip_extensions() {
@@ -180,6 +181,20 @@ class AltMouse {
 
 		_backgroundMenu.BackgroundMenu.prototype.open = () => {};
 	}
+
+	add_hot_corner(){
+		const HotCorner = imports.ui.layout.HotCorner;
+		const lm = Main.layoutManager;
+		const monitor = lm.primaryMonitor;
+		let corner = new HotCorner(lm, monitor, monitor.width, 0);
+		corner.setBarrierSize(3);
+		lm.hotCorners.push(corner);
+		lm._updateHotCorners();
+		lm.hotCorners.forEach(corner => {
+			log(corner);
+		});
+		//~ Main.layoutManager.prototype.hotCorners.push(corner);
+	};
 
 	destroy() {
 		if (this.scrollEventId != null) {
