@@ -1,10 +1,18 @@
 const { Clutter, Meta, Gdk, Shell, St } = imports.gi;
-const Main = imports.ui.main;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
-const AltTab = imports.ui.altTab;
+
+const Main			  = imports.ui.main;
+const Me			  = imports.misc.extensionUtils.getCurrentExtension();
+const AltTab		  = imports.ui.altTab;
 const _backgroundMenu = imports.ui.backgroundMenu;
 //~ part fork from: Just Perfection, panelScroll
 const aggregateMenu = Main.panel.statusArea.aggregateMenu;
+
+const Need_TR_hot_corner = true;
+
+const HotCorner		= imports.ui.layout.HotCorner;
+const layoutManager = Main.layoutManager;
+const monitor		= layoutManager.primaryMonitor;
+let save_corner		= [];
 
 const debug = false;
 //~ const debug = true;
@@ -13,9 +21,9 @@ function lg(s) {
 };
 
 const DisableBGMenu = true;
-const maxflag = Meta.MaximizeFlags.VERTICAL;
-let rightPanel = null;
-const gap = 8;
+const maxflag		= Meta.MaximizeFlags.VERTICAL;
+let rightPanel		= null;
+const gap			= 8;
 
 //~ TODO:
 //~ 判断鼠标下面有没有窗口。window_under_pointer
@@ -28,21 +36,21 @@ const gap = 8;
 class AltMouse {
 	constructor() {
 		this.previousDirection = Meta.MotionDirection.UP;
-		this.listPointer = 0;
-		this._originals = {};
+		this.listPointer	   = 0;
+		this._originals		   = {};
 		if (DisableBGMenu) this.backgroundMenuDisable();
 
-		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this)); //~ 鼠标三个按钮需要在桌面双击才有效。
+		this.clickEventId  = global.stage.connect('button-release-event', this.clickEvent.bind(this));	//~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
-		this.add_hot_corner();
+		if(Need_TR_hot_corner) this.add_hot_corner();
 	}
 
 	skip_extensions() {
-		let [x, y] = global.get_pointer();
+		let [x, y]		= global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
-		if (pickedActor.get_name() == 'panel') return false; // panel
-		if (pickedActor.width == Main.layoutManager.primaryMonitor.width) return false; // desktop
-		if (pickedActor.width == gap) return false; // gap
+		if (pickedActor.get_name() == 'panel') return false;  // panel
+		if (pickedActor.width == Main.layoutManager.primaryMonitor.width) return false;	 // desktop
+		if (pickedActor.width == gap) return false;	 // gap
 		return true;
 	}
 
@@ -55,7 +63,7 @@ class AltMouse {
 		if (!w) return Clutter.EVENT_PROPAGATE;
 		switch (event.get_button()) {
 		case 1:
-			if (altkey) { //全屏，全屏后无法再点击恢复。提前设置alt-f12恢复。
+			if (altkey) {  //全屏，全屏后无法再点击恢复。提前设置alt-f12恢复。
 				//~ if (w.can_maximize())
 				//~ if (w.is_fullscreen()) w.unmake_fullscreen();
 				//~ else w.make_fullscreen();
@@ -63,24 +71,24 @@ class AltMouse {
 					w.unmake_above();
 				else
 					w.make_above();
-			} else { //移动
+			} else {  //移动
 				if (w.allows_move()) w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
 			}
 			return Clutter.EVENT_STOP;
-		case 2: //中键
-			if (altkey) { //关闭
+		case 2:	 //中键
+			if (altkey) {  //关闭
 				if (w.can_close()) w.kill();
-			} else { //调大小
+			} else {  //调大小
 				if (w.allows_resize()) w.begin_grab_op(Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN, true, event.get_time());
 			}
 			return Clutter.EVENT_STOP;
 		case 3:
-			if (altkey) { //最大化。最大化后，窗口正上方面板不能 1 键点击了。
+			if (altkey) {  //最大化。最大化后，窗口正上方面板不能 1 键点击了。
 				if (w.get_maximized() != maxflag)
 					w.maximize(maxflag);
 				else
 					w.unmaximize(maxflag);
-			} else { //置底。追加上滚聚焦，滚轮下滚可立刻恢复。
+			} else {  //置底。追加上滚聚焦，滚轮下滚可立刻恢复。
 				w.lower();
 				this.switchWindows(Meta.MotionDirection.UP);
 			}
@@ -91,17 +99,17 @@ class AltMouse {
 	}
 
 	// direction +1 / -1, 0 toggles mute
-	adjustVolume(direction) { // GdH method
-		const Volume = imports.ui.status.volume;
+	adjustVolume(direction) {  // GdH method
+		const Volume	 = imports.ui.status.volume;
 		let mixerControl = Volume.getMixerControl();
-		let sink = mixerControl.get_default_sink();
+		let sink		 = mixerControl.get_default_sink();
 
 		if (direction === 0) {
 			sink.change_is_muted(!sink.is_muted);
 		} else {
 			let volume = sink.volume;
-			let max = mixerControl.get_vol_max_norm();
-			let step = direction * 2048;
+			let max	   = mixerControl.get_vol_max_norm();
+			let step   = direction * 2048;
 
 			volume = volume + step;
 			if (volume > max) volume = max;
@@ -117,30 +125,30 @@ class AltMouse {
 		if (this.skip_extensions()) return Clutter.EVENT_PROPAGATE;
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
-		if (altkey && !GdH) { // Just.P method
+		if (altkey && !GdH) {  // Just.P method
 			aggregateMenu._volume._handleScrollEvent(0, event);
 			return Clutter.EVENT_STOP;
 		}
-		let adj; // GdH method
+		let adj;  // GdH method
 		let direction;
 		switch (event.get_scroll_direction()) {
 		case Clutter.ScrollDirection.UP:
 		case Clutter.ScrollDirection.LEFT:
 			direction = Meta.MotionDirection.UP;
-			adj = 1; // GdH method
+			adj		  = 1;	// GdH method
 			break;
 		case Clutter.ScrollDirection.DOWN:
 		case Clutter.ScrollDirection.RIGHT:
 			direction = Meta.MotionDirection.DOWN;
-			adj = -1; // GdH method
+			adj		  = -1;	 // GdH method
 			break;
 		default:
 			return Clutter.EVENT_PROPAGATE;
 		}
 		if (altkey && GdH)
 			this.adjustVolume(adj);
-		else // GdH method
-			this.switchWindows(direction); //切换
+		else  // GdH method
+			this.switchWindows(direction);	//切换
 		return Clutter.EVENT_STOP;
 	}
 
@@ -182,18 +190,21 @@ class AltMouse {
 		_backgroundMenu.BackgroundMenu.prototype.open = () => {};
 	}
 
-	add_hot_corner(){
-		const HotCorner = imports.ui.layout.HotCorner;
-		const lm = Main.layoutManager;
-		const monitor = lm.primaryMonitor;
-		let corner = new HotCorner(lm, monitor, monitor.width, 0);
-		corner.setBarrierSize(3);
-		lm.hotCorners.push(corner);
-		lm._updateHotCorners();
-		lm.hotCorners.forEach(corner => {
-			log(corner);
+	add_hot_corner() {
+		let corner;
+		layoutManager.hotCorners.forEach(corner => {
+			if (corner)
+				corner.destroy();
 		});
-		//~ Main.layoutManager.prototype.hotCorners.push(corner);
+		layoutManager.hotCorners = [];
+
+		corner = new HotCorner(layoutManager, monitor, monitor.width, 0);	 // right-up
+		corner.setBarrierSize(10);
+		layoutManager.hotCorners.push(corner);
+		corner = new HotCorner(layoutManager, monitor, 0, 0);  // left-up
+		corner.setBarrierSize(10);
+		layoutManager.hotCorners.push(corner);
+		layoutManager.emit('hot-corners-changed');
 	};
 
 	destroy() {
@@ -216,8 +227,8 @@ function init(metadata) {
 
 function enable() {
 	lg("start");
+	save_corner = layoutManager.hotCorners;
 	//~ This part copy from `Edge Gap`, Its idea is in line with me.
-	const monitor = Main.layoutManager.primaryMonitor;
 	rightPanel = new St.Bin({
 		reactive : false,
 		can_focus : false,
@@ -235,6 +246,10 @@ function enable() {
 
 function disable() {
 	lg("stop");
+	if (save_corner) {
+		layoutManager.hotCorners = save_corner;
+		layoutManager.emit('hot-corners-changed');
+	}
 	Main.layoutManager.removeChrome(rightPanel);
 	rightPanel.destroy();
 	rightPanel = null;

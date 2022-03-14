@@ -1,6 +1,6 @@
 {
   "name": "Alt Mouse",
-  "description": "Alt + Mouse control window, Detailed instructions are on the home page.",
+  "description": "* Alt + Mouse control window, Detailed instructions are on the home page. Add a gap at right screen edge. Add Top-Left and Top-Right corner as hot coner.",
   "uuid": "alt-mouse@eexpss.gmail.com",
   "url": "https://github.com/eexpress/gnome-shell-alt-mouse",
   "shell-version": [
