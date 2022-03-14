@@ -7,7 +7,7 @@ const _backgroundMenu = imports.ui.backgroundMenu;
 //~ part fork from: Just Perfection, panelScroll
 const aggregateMenu = Main.panel.statusArea.aggregateMenu;
 
-const Need_TR_hot_corner = true;
+const ADD_TL_TR_hot_corner = true;
 
 const HotCorner		= imports.ui.layout.HotCorner;
 const layoutManager = Main.layoutManager;
@@ -42,7 +42,7 @@ class AltMouse {
 
 		this.clickEventId  = global.stage.connect('button-release-event', this.clickEvent.bind(this));	//~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
-		if(Need_TR_hot_corner) this.add_hot_corner();
+		if(ADD_TL_TR_hot_corner) this.add_hot_corner();
 	}
 
 	skip_extensions() {
@@ -199,10 +199,10 @@ class AltMouse {
 		layoutManager.hotCorners = [];
 
 		corner = new HotCorner(layoutManager, monitor, monitor.width, 0);	 // right-up
-		corner.setBarrierSize(10);
+		corner.setBarrierSize(1);
 		layoutManager.hotCorners.push(corner);
 		corner = new HotCorner(layoutManager, monitor, 0, 0);  // left-up
-		corner.setBarrierSize(10);
+		corner.setBarrierSize(1);
 		layoutManager.hotCorners.push(corner);
 		layoutManager.emit('hot-corners-changed');
 	};
