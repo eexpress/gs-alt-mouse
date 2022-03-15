@@ -58,6 +58,14 @@ class AltMouse {
 		if (this.skip_extensions()) return Clutter.EVENT_PROPAGATE;
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
+		if(debug){
+			const ctrlkey = event.get_state() & Clutter.ModifierType.CONTROL_MASK;
+			if(ctrlkey){
+				const [x, y] = global.get_pointer();
+				lg(x+"--"+y);
+				return Clutter.EVENT_STOP;
+			}
+		}
 
 		let w = global.display.get_focus_window();
 		if (!w) return Clutter.EVENT_PROPAGATE;
@@ -205,7 +213,7 @@ class AltMouse {
 		corner.setBarrierSize(1);
 		layoutManager.hotCorners.push(corner);
 		layoutManager.emit('hot-corners-changed');
-		//~ you should use coordinates of the given monitor, not always is the top left corner of primary monitor at 0, 0. Also the barriers (vertical and horizontal) need to have proper direction, which will be wrong for the horizontal one in your case, because the Shell knows only top left corner (top-right only for RTL environments)
+		//~ Also the barriers (vertical and horizontal) need to have proper direction, which will be wrong for the horizontal one in your case, because the Shell knows only top left corner (top-right only for RTL environments) RTL language 右对齐语言？
 	};
 
 	destroy() {
