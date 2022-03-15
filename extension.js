@@ -1,18 +1,21 @@
 const { Clutter, Meta, Gdk, Shell, St } = imports.gi;
 
-const Main			  = imports.ui.main;
-const Me			  = imports.misc.extensionUtils.getCurrentExtension();
-const AltTab		  = imports.ui.altTab;
-const _backgroundMenu = imports.ui.backgroundMenu;
-//~ part fork from: Just Perfection, panelScroll
-const aggregateMenu = Main.panel.statusArea.aggregateMenu;
-
-const ADD_TL_TR_hot_corner = true;
-
-const HotCorner		= imports.ui.layout.HotCorner;
+const Main			= imports.ui.main;
+const Me			= imports.misc.extensionUtils.getCurrentExtension();
+const AltTab		= imports.ui.altTab;
 const layoutManager = Main.layoutManager;
 const monitor		= layoutManager.primaryMonitor;
-let save_corner		= [];
+//~ part copy from: Just Perfection, panelScroll，Edge Gap
+const _backgroundMenu = imports.ui.backgroundMenu;
+const orig_bgMenu	  = _backgroundMenu.BackgroundMenu.prototype.open;
+const aggregateMenu	  = Main.panel.statusArea.aggregateMenu;
+//~ 增加热角，替换原型函数
+const HotCorner				= imports.ui.layout.HotCorner;
+const _LayoutManager		= imports.ui.layout.LayoutManager;
+const orig_updateHotCorners = _LayoutManager.prototype._updateHotCorners;
+//~ 最大化后，panel变成dragWindow状态，导致panel正上方点击失效。所以禁止它的拖放函数。
+const _Panel			 = imports.ui.panel.Panel;
+const orig_tryDragWindow = _Panel.prototype._tryDragWindow;
 
 const debug = false;
 //~ const debug = true;
@@ -20,16 +23,15 @@ function lg(s) {
 	if (debug) log("===" + Me.uuid.split('@')[0] + "===>" + s)
 };
 
-const DisableBGMenu = true;
-const maxflag		= Meta.MaximizeFlags.VERTICAL;
-let rightPanel		= null;
-const gap			= 8;
+const maxMode = Meta.MaximizeFlags.VERTICAL;
+
+let rightGap = null;
+const gap	 = 8;
 
 //~ TODO:
 //~ 判断鼠标下面有没有窗口。window_under_pointer
 //~ ‌窗口去掉装饰条。不想使用外挂的xprop。
 //~ ‌窗口上，全局附加alt键。
-//~ panel.js中参见(#L595-L600)，maximized_vertically后(#L812)，panel变成dragWindow状态，导致panel正上方点击失效。
 //~ 全屏后，panel消失，无法点击。需要全局控制权。
 //~ 桌面双击才有效
 
@@ -37,19 +39,17 @@ class AltMouse {
 	constructor() {
 		this.previousDirection = Meta.MotionDirection.UP;
 		this.listPointer	   = 0;
-		this._originals		   = {};
-		if (DisableBGMenu) this.backgroundMenuDisable();
 
 		this.clickEventId  = global.stage.connect('button-release-event', this.clickEvent.bind(this));	//~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
-		if(ADD_TL_TR_hot_corner) this.add_hot_corner();
 	}
 
 	skip_extensions() {
 		let [x, y]		= global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
-		if (pickedActor.get_name() == 'panel') return false;  // panel
-		if (pickedActor.width == Main.layoutManager.primaryMonitor.width) return false;	 // desktop
+		if (pickedActor.get_name()) return false;  // panel or xFloat
+		//~ if (pickedActor.get_name() == 'panel') return false;  // panel
+		if (pickedActor.width == monitor.width) return false;  // desktop
 		if (pickedActor.width == gap) return false;	 // gap
 		return true;
 	}
@@ -58,11 +58,10 @@ class AltMouse {
 		if (this.skip_extensions()) return Clutter.EVENT_PROPAGATE;
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
-		if(debug){
+		if (debug) {
 			const ctrlkey = event.get_state() & Clutter.ModifierType.CONTROL_MASK;
-			if(ctrlkey){
+			if (ctrlkey) {
 				const [x, y] = global.get_pointer();
-				lg(x+"--"+y);
 				return Clutter.EVENT_STOP;
 			}
 		}
@@ -71,14 +70,11 @@ class AltMouse {
 		if (!w) return Clutter.EVENT_PROPAGATE;
 		switch (event.get_button()) {
 		case 1:
-			if (altkey) {  //全屏，全屏后无法再点击恢复。提前设置alt-f12恢复。
-				//~ if (w.can_maximize())
-				//~ if (w.is_fullscreen()) w.unmake_fullscreen();
-				//~ else w.make_fullscreen();
-				if (w.is_above())
-					w.unmake_above();
+			if (altkey) {  //最大化
+				if (w.get_maximized() != maxMode)
+					w.maximize(maxMode);
 				else
-					w.make_above();
+					w.unmaximize(maxMode);
 			} else {  //移动
 				if (w.allows_move()) w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
 			}
@@ -91,11 +87,15 @@ class AltMouse {
 			}
 			return Clutter.EVENT_STOP;
 		case 3:
-			if (altkey) {  //最大化。最大化后，窗口正上方面板不能 1 键点击了。
-				if (w.get_maximized() != maxflag)
-					w.maximize(maxflag);
+			if (altkey) {  //置顶
+				//全屏，全屏后无法再点击恢复。提前设置alt-f12恢复。
+				//~ if (w.can_maximize())
+				//~ if (w.is_fullscreen()) w.unmake_fullscreen();
+				//~ else w.make_fullscreen();
+				if (w.is_above())
+					w.unmake_above();
 				else
-					w.unmaximize(maxflag);
+					w.make_above();
 			} else {  //置底。追加上滚聚焦，滚轮下滚可立刻恢复。
 				w.lower();
 				this.switchWindows(Meta.MotionDirection.UP);
@@ -166,7 +166,6 @@ class AltMouse {
 
 	switchWindows(direction) {
 		let windows = this.getWindows();
-		//~ windows.forEach(w => this.showinfo(w));
 		//~ windows.forEach((w) => {w.decorated = false;});	//Property MetaWindowX11.decorated is not writable 但是 Gtk 的进程里面可以。
 		//~ 其他扩展，外挂使用 `xprop` 去边框
 		if (windows.length <= 1) return;
@@ -186,36 +185,6 @@ class AltMouse {
 		return AltTab.getWindows(global.workspace_manager.get_active_workspace());
 	}
 
-	backgroundMenuEnable() {
-		//~ _backgroundMenu.reactive = true;
-		if (this._originals['bgMenu']) _backgroundMenu.BackgroundMenu.prototype.open = this._originals['bgMenu'];
-	}
-
-	backgroundMenuDisable() {
-		//~ _backgroundMenu.reactive = false;
-		if (!this._originals['bgMenu']) this._originals['bgMenu'] = _backgroundMenu.BackgroundMenu.prototype.open;
-
-		_backgroundMenu.BackgroundMenu.prototype.open = () => {};
-	}
-
-	add_hot_corner() {
-		let corner;
-		layoutManager.hotCorners.forEach(corner => {
-			if (corner)
-				corner.destroy();
-		});
-		layoutManager.hotCorners = [];
-
-		corner = new HotCorner(layoutManager, monitor, monitor.width, 0);	 // right-up
-		corner.setBarrierSize(1);
-		layoutManager.hotCorners.push(corner);
-		corner = new HotCorner(layoutManager, monitor, 0, 0);  // left-up
-		corner.setBarrierSize(1);
-		layoutManager.hotCorners.push(corner);
-		layoutManager.emit('hot-corners-changed');
-		//~ Also the barriers (vertical and horizontal) need to have proper direction, which will be wrong for the horizontal one in your case, because the Shell knows only top left corner (top-right only for RTL environments) RTL language 右对齐语言？
-	};
-
 	destroy() {
 		if (this.scrollEventId != null) {
 			global.stage.disconnect(this.scrollEventId);
@@ -225,8 +194,24 @@ class AltMouse {
 			global.stage.disconnect(this.clickEventId);
 			this.clickEventId = null;
 		}
-		if (DisableBGMenu) this.backgroundMenuEnable();
 	}
+}
+
+function _updateHotCorners() {
+	let corner;
+	layoutManager.hotCorners.forEach(corner => {
+		if (corner)
+			corner.destroy();
+	});
+	layoutManager.hotCorners = [];
+
+	corner = new HotCorner(layoutManager, monitor, monitor.width, 0);  // right-up
+	corner.setBarrierSize(1);
+	layoutManager.hotCorners.push(corner);
+	corner = new HotCorner(layoutManager, monitor, 0, 0);  // left-up
+	corner.setBarrierSize(1);
+	layoutManager.hotCorners.push(corner);
+	layoutManager.emit('hot-corners-changed');
 }
 
 let altmouse;
@@ -236,17 +221,19 @@ function init(metadata) {
 
 function enable() {
 	lg("start");
-	save_corner = layoutManager.hotCorners;
-	//~ This part copy from `Edge Gap`, Its idea is in line with me.
-	rightPanel = new St.Bin({
+	_backgroundMenu.BackgroundMenu.prototype.open = () => {};
+	_Panel.prototype._tryDragWindow 			  = () => {};
+	_LayoutManager.prototype._updateHotCorners	  = _updateHotCorners;
+	_updateHotCorners();
+	rightGap = new St.Bin({
 		reactive : false,
 		can_focus : false,
 		track_hover : false,
 		height : monitor.height,
 		width : gap,
 	});
-	rightPanel.set_position(monitor.width - gap, 0);
-	Main.layoutManager.addChrome(rightPanel, {
+	rightGap.set_position(monitor.width - gap, 0);
+	layoutManager.addChrome(rightGap, {
 		affectsInputRegion : true,
 		affectsStruts : true,
 	});
@@ -255,13 +242,13 @@ function enable() {
 
 function disable() {
 	lg("stop");
-	if (save_corner) {
-		layoutManager.hotCorners = save_corner;
-		layoutManager.emit('hot-corners-changed');
-	}
-	Main.layoutManager.removeChrome(rightPanel);
-	rightPanel.destroy();
-	rightPanel = null;
+	_backgroundMenu.BackgroundMenu.prototype.open = orig_bgMenu;
+	_Panel.prototype._tryDragWindow				  = orig_tryDragWindow;
+	_LayoutManager.prototype._updateHotCorners	  = orig_updateHotCorners;
+	layoutManager.emit('hot-corners-changed');
+	layoutManager.removeChrome(rightGap);
+	rightGap.destroy();
+	rightGap = null;
 	altmouse.destroy();
 	altmouse = null;
 }
