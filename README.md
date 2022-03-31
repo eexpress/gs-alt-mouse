@@ -19,3 +19,5 @@ Alt + panel/desktop|volume|max(VERTICAL)|close|above
 > Add a `gap` at right screen edge.
 
 > Add `Top-Left` and `Top-Right` corner as hot coner.
+
+![prefs](screenshot.png)
