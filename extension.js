@@ -96,8 +96,10 @@ class AltMouse {
 				else
 					w.make_above();
 			} else {  //置底。追加上滚聚焦，滚轮下滚可立刻恢复。
-				w.lower();
-				this.switchWindows(true);
+				//~ w.lower();
+				//~ this.switchWindows(true);
+				// 最小化。为了fx没标题栏，无法最小化。
+				w.minimize();
 			}
 			return Clutter.EVENT_STOP;
 		default:

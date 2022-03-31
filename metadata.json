@@ -1,6 +1,6 @@
 {
   "name": "Alt Mouse",
-  "description": "* Alt + Mouse control window, Detailed instructions are on the home page and an alt-mouse-diagram.png in extension directory. Disable desktop BackgroundMenu, Disable Panel dragMode, Add a gap at right screen edge. Add Top-Left and Top-Right corner as hot coner.",
+  "description": "* Alt + Mouse control window\nDetailed instructions are on the home page and an alt-mouse-diagram.png in extension directory. \nDisable desktop BackgroundMenu, Disable Panel dragMode. \nAdd a gap at right screen edge. \nAdd Top-Left and Top-Right corner as hot coner.",
   "uuid": "alt-mouse@eexpss.gmail.com",
   "url": "https://github.com/eexpress/gnome-shell-alt-mouse",
   "shell-version": [
