@@ -17,7 +17,7 @@ function fillPreferencesWindow(window) {
 	let resource = Gio.Resource.load(Me.path + '/icon.gresource');
 	Gio.resources_register(resource);
 	page.add(new MyPrefs());
-	window.set_default_size(500, 550);
+	window.set_default_size(500, 650);
 	window.add(page);
 }
 
@@ -44,15 +44,11 @@ class MyRow extends Adw.ActionRow {
 	constructor(...args) {
 		super();
 		for (let i of args) {
-			//~ const img = new Gtk.Image({ gicon : Gio.Icon.new_for_string(`resource:///img/${i}.svg`), pixel_size : 128 });
-			//~ this.add_prefix(img);
-			const bin = new Adw.Bin();
-			const img = new Gtk.DrawingArea();
-			img.set_draw_func( (drawArea, cr, width, height) => {
+			const da = new Gtk.DrawingArea({ content_height : size, content_width : size });
+			da.set_draw_func((drawArea, cr, width, height) => {
 				draw(cr, i);
 			});
-			bin.set_child(img);
-			this.add_suffix(bin);
+			this.add_suffix(da);
 			//~ https://gnome.pages.gitlab.gnome.org/libadwaita/doc/main/visual-index.html#boxed-lists
 		}
 	}
@@ -60,19 +56,24 @@ class MyRow extends Adw.ActionRow {
 
 function draw(cr, str) {
 	if (str.indexOf(',') > 0) {
-		const hd = Rsvg.Handle.new_from_file(Me.path + '/img/mouse.svg');
-		//~ const hd = Rsvg.Handle.new_from_file('/home/eexpss/alt-mouse-button.svg');
+		const f = Gio.File.new_for_uri('resource:///img/mouse.svg');
+		const hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
+		//~ const hd = Rsvg.Handle.new_from_file(Me.path + '/img/mouse.svg');
 		for (let p of str.split(',')) {
-			log(p);
 			hd.render_cairo_sub(cr, `#${p}`);
 		}
+		hd.close();	 // need close manually?
+		f.close();	// need close manually?
 	} else {
-		const hd = Rsvg.Handle.new_from_file(Me.path + `/img/${str}.svg`);
-		log(str);
-		hd.render_cairo(cr);
+		const f = Gio.File.new_for_uri(`resource:///img/${str}.svg`);
+		const hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
+		//~ const hd = Rsvg.Handle.new_from_file(Me.path + `/img/${str}.svg`);
+		//~ hd.render_cairo(cr);
+		//~ cr.scale(0.5, 0.5);
+		const vp = new Rsvg.Rectangle({ x : 0, y : 0, width : size, height : size });
+		//~ hd.render_layer(cr, "#Device", vp);
+		hd.render_document(cr, vp);
+		hd.close();
+		f.close();
 	}
-	//~ cr.paint();
-	//~ const vp = new Rsvg.Rectangle({ x : 0, y : 0, width : size, height : size });
-	//~ hd.render_layer(cr, "#Device", vp);
-	//~ hd.render_document(cr, vp);
 }
