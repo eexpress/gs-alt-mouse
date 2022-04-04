@@ -13,16 +13,8 @@
 	<file>img/act-resize.svg</file>
 	<file>img/act-switch.svg</file>
 	<file>img/act-vol.svg</file>
-	<file>img/am1.svg</file>
-	<file>img/am2.svg</file>
-	<file>img/am3.svg</file>
-	<file>img/am45.svg</file>
-	<file>img/m1.svg</file>
-	<file>img/m2.svg</file>
-	<file>img/m3.svg</file>
-	<file>img/m45.svg</file>
-	<file>img/m.svg</file>
-	<file>img/s-symbolic.svg</file>
+	<file>img/mouse.svg</file>
+	<file>img/separator.svg</file>
 
   </gresource>
 </gresources>
