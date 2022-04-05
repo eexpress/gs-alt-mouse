@@ -52,7 +52,7 @@ class pAction extends Adw.PreferencesGroup {
 			['Switch', 'Scroll Mouse to switch windows.'],
 			['Vol', 'Scroll Mouse to increase/decrease volumn.'],
 			['Max', 'window may be maximized.'],
-			['Max-H', 'window may be maximized horizontally. '],
+			['Max-H', 'window may be maximized horizontally.'],
 			['Min', 'window may be iconified.'],
 			['Close', 'window may be closed.'],
 			['Full', 'window may be brought to fullscreen state.'],
