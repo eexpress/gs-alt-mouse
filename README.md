@@ -5,7 +5,7 @@ Alt + Mouse control window
 
 ---
 
-![diagram](alt-mouse-diagram.png)
+![prefs-set](screenshot.png)
 
 -| scroll up/down | butt 1|butt 2(middle)|butt 3
 ---|---|---|---|---
@@ -20,5 +20,4 @@ Alt + panel/desktop|volume|max(VERTICAL)|close|above
 
 > Add `Top-Left` and `Top-Right` corner as hot coner.
 
-![prefs-set](screenshot.png)
 ![prefs-act](screenshot1.png)
