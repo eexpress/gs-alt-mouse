@@ -6,6 +6,6 @@
   "gettext-domain": "alt-mouse",
   "settings-schema": "org.gnome.shell.extensions.alt-mouse",
   "shell-version": [
-    "40","41","42"
+    "42"
   ]
 }
