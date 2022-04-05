@@ -20,4 +20,5 @@ Alt + panel/desktop|volume|max(VERTICAL)|close|above
 
 > Add `Top-Left` and `Top-Right` corner as hot coner.
 
-![prefs](screenshot.png)
+![prefs-set](screenshot.png)
+![prefs-act](screenshot1.png)
