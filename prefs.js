@@ -1,6 +1,6 @@
 'use strict';
 
-const { Adw, Gio, Gtk, GObject, Soup, GLib, Rsvg, Gdk } = imports.gi;
+const { Adw, Gio, Gtk, GObject, Soup, GLib, Rsvg } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -93,7 +93,7 @@ class pSetting extends Adw.PreferencesGroup {
 		super();
 		let ar = new Adw.ActionRow();
 		ar.set_title('Mouse Setting');
-		ar.set_subtitle('Click the action icon to select the desired action. \nXX\nAll Actions list in next page.');
+		ar.set_subtitle('Click the action icon to select the desired action. \nAll Actions list in next page.');
 		this.add(ar);
 
 		[
@@ -107,6 +107,10 @@ class pSetting extends Adw.PreferencesGroup {
 				const da = new Gtk.DrawingArea({ content_height : size, content_width : size * 2.2 });
 				da.key = i.trim();
 				da.act = settings.get_string(da.key);
+				settings.connect(`changed::${da.key}`, () => {	//Romain
+					da.act = settings.get_string(da.key);
+					da.queue_draw();
+				});
 				let gesture = new Gtk.GestureClick();
 				gesture.connect('released', (n_press, x, y) => {
 					last_DA = da;
@@ -127,7 +131,7 @@ class pSetting extends Adw.PreferencesGroup {
 		ar.set_activatable_widget(but);
 		but.connect('clicked', () => {
 			log("reset");
-			//~ for (let i of p0)
+			['key-s', 'key-a-s', 'key-1', 'key-a-1', 'key-2', 'key-a-2', 'key-3', 'key-a-3'].forEach(k => { settings.reset(k); });
 		});
 		this.add(ar);
 	}
