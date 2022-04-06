@@ -62,7 +62,7 @@ class pAction extends Adw.PreferencesGroup {
 			[ 'Max-H', 'window may be maximized horizontally.' ],
 			[ 'Min', 'window may be iconified.' ],
 			[ 'Close', 'window may be closed.' ],
-			[ 'Full', 'window may be brought to fullscreen state.' ],
+			//~ [ 'Full', 'window may be brought to fullscreen state.' ],
 			[ 'Lower', 'window may placed in the "below" layer' ],
 			//~ [ 'Shade', 'window may be shaded.' ],
 			//~ [ 'Stick', 'window may have its sticky state toggled.' ],
@@ -129,6 +129,7 @@ class pSetting extends Adw.PreferencesGroup {
 		ar = new Adw.ActionRow();
 		ar.set_title('Restore Default Setting');
 		const but = Gtk.Button.new_with_label('RESET');
+		but.valign = Gtk.Align.CENTER;
 		ar.add_suffix(but);
 		ar.set_activatable_widget(but);
 		but.connect('clicked', () => {

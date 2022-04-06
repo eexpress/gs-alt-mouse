@@ -122,7 +122,8 @@ class AltMouse {
 			if (w.can_close()) w.kill();
 			break;
 		case 'full':
-			w.fullscreen();
+			//~ w.fullscreen();
+			//~ w.fullscreen is not a function
 			break;
 		case 'lower':
 			w.lower();
