@@ -126,7 +126,7 @@ class pSetting extends Adw.PreferencesGroup {
 		ar.add_suffix(but);
 		ar.set_activatable_widget(but);
 		but.connect('clicked', () => {
-			log("resetsssss");
+			log("reset");
 			//~ for (let i of p0)
 		});
 		this.add(ar);
