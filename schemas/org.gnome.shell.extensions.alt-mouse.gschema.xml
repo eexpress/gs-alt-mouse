@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+
+  <schema id="org.gnome.shell.extensions.alt-mouse"
+    path="/org/gnome/shell/extensions/alt-mouse/">
+
+    <key name="key-1" type="s">
+      <default>'move'</default>
+    </key>
+    <key name="key-2" type="s">
+      <default>'resize'</default>
+    </key>
+    <key name="key-3" type="s">
+      <default>'min'</default>
+    </key>
+    <key name="key-45" type="s">
+      <default>'switch'</default>
+    </key>
+
+    <key name="key-a-1" type="s">
+      <default>'max-h'</default>
+    </key>
+    <key name="key-a-2" type="s">
+      <default>'close'</default>
+    </key>
+    <key name="key-a-3" type="s">
+      <default>'above'</default>
+    </key>
+    <key name="key-a-45" type="s">
+      <default>'vol'</default>
+    </key>
+
+  </schema>
+
+</schemalist>
+
