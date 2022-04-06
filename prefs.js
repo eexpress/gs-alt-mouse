@@ -18,7 +18,7 @@ function init() {
 }
 
 function fillPreferencesWindow(window) {
-	window.set_default_size(500, 700);
+	window.set_default_size(500, 800);
 	let resource = Gio.Resource.load(Me.path + '/icon.gresource');
 	Gio.resources_register(resource);
 	settings = ExtensionUtils.getSettings();
@@ -91,9 +91,9 @@ class pSetting extends Adw.PreferencesGroup {
 	}
 	constructor() {
 		super();
-		const ar = new Adw.ActionRow();
+		let ar = new Adw.ActionRow();
 		ar.set_title('Mouse Setting');
-		ar.set_subtitle('Click the action icon to select the desired action. \nAll Actions list in next page.');
+		ar.set_subtitle('Click the action icon to select the desired action. \nXX\nAll Actions list in next page.');
 		this.add(ar);
 
 		[
@@ -102,7 +102,7 @@ class pSetting extends Adw.PreferencesGroup {
 			[ 'key-2', 'key-a-2' ],
 			[ 'key-3', 'key-a-3' ],
 		].forEach(e => {
-			const ar = new Adw.ActionRow();
+			ar = new Adw.ActionRow();
 			for (let i of e) {
 				const da = new Gtk.DrawingArea({ content_height : size, content_width : size * 2.2 });
 				da.key = i.trim();
@@ -120,6 +120,16 @@ class pSetting extends Adw.PreferencesGroup {
 			}
 			this.add(ar);
 		});
+		ar = new Adw.ActionRow();
+		ar.set_title('Restore Default Setting');
+		const but = Gtk.Button.new_with_label('RESET');
+		ar.add_suffix(but);
+		ar.set_activatable_widget(but);
+		but.connect('clicked', () => {
+			log("resetsssss");
+			//~ for (let i of p0)
+		});
+		this.add(ar);
 	}
 }
 
