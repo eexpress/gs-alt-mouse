@@ -1,7 +1,8 @@
 const { Clutter, Meta, Gdk, Shell, St } = imports.gi;
 
+const ExtensionUtils = imports.misc.extensionUtils;
 const Main = imports.ui.main;
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+const Me = ExtensionUtils.getCurrentExtension();
 const AltTab = imports.ui.altTab;
 const layoutManager = Main.layoutManager;
 const monitor = layoutManager.primaryMonitor;
@@ -23,8 +24,6 @@ function lg(s) {
 	if (debug) log("===" + Me.uuid.split('@')[0] + "===>" + s)
 };
 
-const maxMode = Meta.MaximizeFlags.VERTICAL;
-
 let rightGap = null;
 const gap = 8;
 
@@ -38,6 +37,8 @@ const gap = 8;
 class AltMouse {
 	constructor() {
 		this.previousDirection = Meta.MotionDirection.UP;
+		this.settings = ExtensionUtils.getSettings();
+		//~ this.settings.connect('changed::latitude', () => {});
 
 		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));  //~ 鼠标三个按钮需要在桌面双击才有效。
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
@@ -67,45 +68,70 @@ class AltMouse {
 
 		let w = global.display.get_focus_window();
 		if (!w) return Clutter.EVENT_PROPAGATE;
+		let act;
 		switch (event.get_button()) {
 		case 1:
-			if (altkey) {  //最大化
-				if (w.get_maximized() != maxMode)
-					w.maximize(maxMode);
-				else
-					w.unmaximize(maxMode);
-			} else {  //移动
-				if (w.allows_move()) w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
-			}
-			return Clutter.EVENT_STOP;
-		case 2:	 //中键
-			if (altkey) {  //关闭
-				if (w.can_close()) w.kill();
-			} else {  //调大小
-				if (w.allows_resize()) w.begin_grab_op(Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN, true, event.get_time());
-			}
-			return Clutter.EVENT_STOP;
+			act = altkey ? 'key-a-1' : 'key-1';
+			break;
+		case 2:
+			act = altkey ? 'key-a-2' : 'key-2';
+			break;
 		case 3:
-			if (altkey) {  //置顶
-				//全屏，全屏后无法再点击恢复。提前设置alt-f12恢复。
-				//~ if (w.can_maximize())
-				//~ if (w.is_fullscreen()) w.unmake_fullscreen();
-				//~ else w.make_fullscreen();
-				if (w.is_above())
-					w.unmake_above();
-				else
-					w.make_above();
-			} else {  //置底。追加上滚聚焦，滚轮下滚可立刻恢复。
-				//~ w.lower();
-				//~ this.switchWindows(true);
-				// 最小化。为了fx没标题栏，无法最小化。
-				w.minimize();
-			}
-			return Clutter.EVENT_STOP;
+			act = altkey ? 'key-a-3' : 'key-3';
+			break;
 		default:
 			return Clutter.EVENT_PROPAGATE;
 		}
+		this.action(w, this.settings.get_string(act), event);
+		return Clutter.EVENT_STOP;
 	}
+
+	action(w, act, event) {
+		switch (act) {
+		case 'none': break;
+		case 'above':
+			if (w.is_above())
+				w.unmake_above();
+			else
+				w.make_above();
+			break;
+		case 'move':
+			if (w.allows_move()) w.begin_grab_op(Meta.GrabOp.MOVING, true, event.get_time());
+			break;
+		case 'resize':
+			if (w.allows_resize()) w.begin_grab_op(Meta.GrabOp.KEYBOARD_RESIZING_UNKNOWN, true, event.get_time());
+			break;
+		case 'max':
+			const maxMode = Meta.MaximizeFlags.BOTH;
+			if (w.get_maximized() != maxMode)
+				w.maximize(maxMode);
+			else
+				w.unmaximize(maxMode);
+			break;
+		case 'max-h':
+			const maxModeH = Meta.MaximizeFlags.VERTICAL;
+			if (w.get_maximized() != maxModeH)
+				w.maximize(maxModeH);
+			else
+				w.unmaximize(maxModeH);
+			break;
+		case 'min':
+			w.minimize();
+			break;
+		case 'close':
+			if (w.can_close()) w.kill();
+			break;
+		case 'full':
+			w.fullscreen();
+			break;
+		case 'lower':
+			w.lower();
+			this.switchWindows(true);
+			break;
+		case 'shade': break;
+		case 'stick': break;
+		}
+	};
 
 	scrollEvent(actor, event) {
 		if (this.skip_extensions()) return Clutter.EVENT_PROPAGATE;

@@ -56,16 +56,16 @@ class pAction extends Adw.PreferencesGroup {
 			[ 'Above', 'window may placed in the "above" layer.' ],
 			[ 'Move', 'window may be moved around the screen.' ],
 			[ 'Resize', 'window may be resized.' ],
-			[ 'Switch', 'Scroll Mouse to switch windows.' ],
-			[ 'Vol', 'Scroll Mouse to increase/decrease volumn.' ],
+			//~ [ 'Switch', 'Scroll Mouse to switch windows.' ],
+			//~ [ 'Vol', 'Scroll Mouse to increase/decrease volumn.' ],
 			[ 'Max', 'window may be maximized.' ],
 			[ 'Max-H', 'window may be maximized horizontally.' ],
 			[ 'Min', 'window may be iconified.' ],
 			[ 'Close', 'window may be closed.' ],
 			[ 'Full', 'window may be brought to fullscreen state.' ],
 			[ 'Lower', 'window may placed in the "below" layer' ],
-			[ 'Shade', 'window may be shaded.' ],
-			[ 'Stick', 'window may have its sticky state toggled.' ],
+			//~ [ 'Shade', 'window may be shaded.' ],
+			//~ [ 'Stick', 'window may have its sticky state toggled.' ],
 		].forEach(e => {
 			const ar = new Adw.ActionRow();
 			ar.set_title(e[0]);
@@ -93,7 +93,7 @@ class pSetting extends Adw.PreferencesGroup {
 		super();
 		let ar = new Adw.ActionRow();
 		ar.set_title('Mouse Setting');
-		ar.set_subtitle('Click the action icon to select the desired action. \nAll Actions list in next page.');
+		ar.set_subtitle('Click the action icon to select the desired action. \nScroll function can not be modified.\nAll Actions list in next page.');
 		this.add(ar);
 
 		[
@@ -107,12 +107,14 @@ class pSetting extends Adw.PreferencesGroup {
 				const da = new Gtk.DrawingArea({ content_height : size, content_width : size * 2.2 });
 				da.key = i.trim();
 				da.act = settings.get_string(da.key);
-				settings.connect(`changed::${da.key}`, () => {	//Romain
+				//~ obj['prop'] and obj.prop is the same	//GdH
+				settings.connect(`changed::${da.key}`, () => {	// Romain
 					da.act = settings.get_string(da.key);
 					da.queue_draw();
 				});
 				let gesture = new Gtk.GestureClick();
 				gesture.connect('released', (n_press, x, y) => {
+					if (da.key.indexOf('-s') > 0) return;  // modify scroll not allow.
 					last_DA = da;
 					_carousel.scroll_to(p1, true);
 				});
