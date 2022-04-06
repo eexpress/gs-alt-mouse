@@ -13,7 +13,7 @@
     <key name="key-3" type="s">
       <default>'min'</default>
     </key>
-    <key name="key-45" type="s">
+    <key name="key-s" type="s">
       <default>'switch'</default>
     </key>
 
@@ -26,7 +26,7 @@
     <key name="key-a-3" type="s">
       <default>'above'</default>
     </key>
-    <key name="key-a-45" type="s">
+    <key name="key-a-s" type="s">
       <default>'vol'</default>
     </key>
 
