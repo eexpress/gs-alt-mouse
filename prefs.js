@@ -74,6 +74,7 @@ class pAction extends Adw.PreferencesGroup {
 			ar.add_suffix(img);
 			ar.set_activatable_widget(img);
 			ar.connect('activated', (i) => {
+				if (!last_DA) return;
 				last_DA.act = i.title.toLowerCase();
 				last_DA.queue_draw();
 				//~ log('=== Alt Mouse ===> ' + last_DA.key + ' = ' + last_DA.act);
