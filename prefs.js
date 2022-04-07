@@ -52,18 +52,18 @@ class pAction extends Adw.PreferencesGroup {
 	constructor() {
 		super();
 		[
-			[ 'None', 'No Action.' ],
-			[ 'Above', 'window may placed in the "above" layer.' ],
-			[ 'Move', 'window may be moved around the screen.' ],
-			[ 'Resize', 'window may be resized.' ],
+			[ 'None', _('No Action.') ],
+			[ 'Above', _('window may placed in the "above" layer.') ],
+			[ 'Move', _('window may be moved around the screen.') ],
+			[ 'Resize', _('window may be resized.') ],
 			//~ [ 'Switch', 'Scroll Mouse to switch windows.' ],
 			//~ [ 'Vol', 'Scroll Mouse to increase/decrease volumn.' ],
-			[ 'Max', 'window may be maximized.' ],
-			[ 'Max-H', 'window may be maximized horizontally.' ],
-			[ 'Min', 'window may be iconified.' ],
-			[ 'Close', 'window may be closed.' ],
+			[ 'Max', _('window may be maximized.') ],
+			[ 'Max-H', _('window may be maximized vertically.') ],
+			[ 'Min', _('window may be iconified.') ],
+			[ 'Close', _('window may be closed.') ],
 			//~ [ 'Full', 'window may be brought to fullscreen state.' ],
-			[ 'Lower', 'window may placed in the "below" layer' ],
+			[ 'Lower', _('window may placed in the "below" layer') ],
 			//~ [ 'Shade', 'window may be shaded.' ],
 			//~ [ 'Stick', 'window may have its sticky state toggled.' ],
 		].forEach(e => {  // no space at end of string, justperfection
@@ -92,8 +92,8 @@ class pSetting extends Adw.PreferencesGroup {
 	constructor() {
 		super();
 		let ar = new Adw.ActionRow();
-		ar.set_title('Mouse Setting');
-		ar.set_subtitle('Click the picture below to modify the corresponding action. \nThe scroll function cannot be modified.\nThe next page lists all Actions. You can drag/2 fingers swip/scroll to show it.');
+		ar.set_title(_('Mouse Setting'));
+		ar.set_subtitle(_('Click the picture below to modify the corresponding action. \nThe scroll function cannot be modified.\nThe next page lists all Actions. You can drag/2 fingers swip/scroll to show it.'));
 		this.add(ar);
 
 		[
@@ -127,7 +127,7 @@ class pSetting extends Adw.PreferencesGroup {
 			this.add(ar);
 		});
 		ar = new Adw.ActionRow();
-		ar.set_title('Restore Default Setting');
+		ar.set_title(_('Restore Default Setting'));
 		const but = Gtk.Button.new_with_label('RESET');
 		but.valign = Gtk.Align.CENTER;
 		ar.add_suffix(but);

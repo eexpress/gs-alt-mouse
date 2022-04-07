@@ -1,0 +1,72 @@
+#
+# eexpss <eexpss@gmail.com>, 2022.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2022-04-07 11:36+0800\n"
+"PO-Revision-Date: 2022-04-07 11:43+0800\n"
+"Last-Translator: eexpss <eexpss@gmail.com>\n"
+"Language-Team: Chinese - China <eexpss@gmail.com>\n"
+"Language: zh_CN\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+"X-Generator: Gtranslator 41.0\n"
+
+#: prefs.js:55
+msgid "No Action."
+msgstr "无动作"
+
+#: prefs.js:56
+msgid "window may placed in the \"above\" layer."
+msgstr "窗口置顶"
+
+#: prefs.js:57
+msgid "window may be moved around the screen."
+msgstr "移动窗口"
+
+#: prefs.js:58
+msgid "window may be resized."
+msgstr "调整窗口大小"
+
+#: prefs.js:61
+msgid "window may be maximized."
+msgstr "窗口最大化"
+
+#: prefs.js:62
+msgid "window may be maximized vertically."
+msgstr "窗口垂直最大化"
+
+#: prefs.js:63
+msgid "window may be iconified."
+msgstr "窗口最小化"
+
+#: prefs.js:64
+msgid "window may be closed."
+msgstr "关闭窗口"
+
+#: prefs.js:66
+msgid "window may placed in the \"below\" layer"
+msgstr "窗口置底"
+
+#: prefs.js:95
+msgid "Mouse Setting"
+msgstr "鼠标设置"
+
+#: prefs.js:96
+msgid ""
+"Click the picture below to modify the corresponding action. \n"
+"The scroll function cannot be modified.\n"
+"The next page lists all Actions. You can drag/2 fingers swip/scroll to show "
+"it."
+msgstr ""
+"单击下面的图片修改相应的操作。\n"
+"无法修改滚轮功能。\n"
+"下一页列出了所有操作。您可以拖动/2个手指滑动/滚动来显示它。"
+
+#: prefs.js:130
+msgid "Restore Default Setting"
+msgstr "重置为缺省设置"
