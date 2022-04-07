@@ -34,7 +34,7 @@ class pGroup extends Adw.PreferencesGroup {
 	}
 	constructor() {
 		super();
-		_carousel = new Adw.Carousel({ spacing : 10 }); //nedd space
+		_carousel = new Adw.Carousel({ spacing : 10 });	 // nedd space
 		p0 = new pSetting();
 		_carousel.append(p0);
 		p1 = new pAction();
@@ -66,7 +66,7 @@ class pAction extends Adw.PreferencesGroup {
 			[ 'Lower', 'window may placed in the "below" layer' ],
 			//~ [ 'Shade', 'window may be shaded.' ],
 			//~ [ 'Stick', 'window may have its sticky state toggled.' ],
-		].forEach(e => {	//no space at end of string, justperfection
+		].forEach(e => {  // no space at end of string, justperfection
 			const ar = new Adw.ActionRow();
 			ar.set_title(e[0]);
 			ar.set_subtitle(e[1]);
@@ -93,7 +93,7 @@ class pSetting extends Adw.PreferencesGroup {
 		super();
 		let ar = new Adw.ActionRow();
 		ar.set_title('Mouse Setting');
-		ar.set_subtitle('Click the action icon to select the desired action. \nScroll function can not be modified.\nAll Actions list in next page.');
+		ar.set_subtitle('Click the picture below to modify the corresponding action. \nThe scroll function cannot be modified.\nThe next page lists all Actions. You can drag/2 fingers swip/scroll to show it.');
 		this.add(ar);
 
 		[
@@ -113,7 +113,7 @@ class pSetting extends Adw.PreferencesGroup {
 					da.queue_draw();
 				});
 				let gesture = new Gtk.GestureClick();
-				gesture.connect('released', (n_press, x, y) => {	//andyholmes
+				gesture.connect('released', (n_press, x, y) => {  // andyholmes
 					if (da.key.indexOf('-s') > 0) return;  // modify scroll not allow.
 					last_DA = da;
 					_carousel.scroll_to(p1, true);
