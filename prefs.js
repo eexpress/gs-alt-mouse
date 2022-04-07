@@ -113,12 +113,12 @@ class pSetting extends Adw.PreferencesGroup {
 					da.queue_draw();
 				});
 				let gesture = new Gtk.GestureClick();
-				gesture.connect('released', (n_press, x, y) => {  // andyholmes
+				gesture.connect('released', (n_press, x, y) => {  //andyholmes recognize multi-clicks
 					if (da.key.indexOf('-s') > 0) return;  // modify scroll not allow.
 					last_DA = da;
 					_carousel.scroll_to(p1, true);
 				});
-				da.add_controller(gesture);
+				da.add_controller(gesture);	//Adds controller so it will receive events.
 				da.set_draw_func((drawArea, cr, width, height) => {
 					draw(cr, da.key, da.act);
 				});
