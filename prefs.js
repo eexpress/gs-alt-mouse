@@ -34,7 +34,7 @@ class pGroup extends Adw.PreferencesGroup {
 	}
 	constructor() {
 		super();
-		_carousel = new Adw.Carousel({ spacing : 10 });
+		_carousel = new Adw.Carousel({ spacing : 10 }); //nedd space
 		p0 = new pSetting();
 		_carousel.append(p0);
 		p1 = new pAction();
@@ -66,7 +66,7 @@ class pAction extends Adw.PreferencesGroup {
 			[ 'Lower', 'window may placed in the "below" layer' ],
 			//~ [ 'Shade', 'window may be shaded.' ],
 			//~ [ 'Stick', 'window may have its sticky state toggled.' ],
-		].forEach(e => {
+		].forEach(e => {	//no space at end of string, justperfection
 			const ar = new Adw.ActionRow();
 			ar.set_title(e[0]);
 			ar.set_subtitle(e[1]);
@@ -76,7 +76,7 @@ class pAction extends Adw.PreferencesGroup {
 			ar.connect('activated', (i) => {
 				last_DA.act = i.title.toLowerCase();
 				last_DA.queue_draw();
-				log('=== Alt Mouse ===> ' + last_DA.key + ' = ' + last_DA.act);
+				//~ log('=== Alt Mouse ===> ' + last_DA.key + ' = ' + last_DA.act);
 				settings.set_string(last_DA.key, last_DA.act);
 				_carousel.scroll_to(p0, true);
 			});
@@ -107,13 +107,13 @@ class pSetting extends Adw.PreferencesGroup {
 				const da = new Gtk.DrawingArea({ content_height : size, content_width : size * 2.2 });
 				da.key = i.trim();
 				da.act = settings.get_string(da.key);
-				//~ obj['prop'] and obj.prop is the same	//GdH
+				//~ append = add; obj[${append}] === obj.add	//GdH
 				settings.connect(`changed::${da.key}`, () => {	// Romain
 					da.act = settings.get_string(da.key);
 					da.queue_draw();
 				});
 				let gesture = new Gtk.GestureClick();
-				gesture.connect('released', (n_press, x, y) => {
+				gesture.connect('released', (n_press, x, y) => {	//andyholmes
 					if (da.key.indexOf('-s') > 0) return;  // modify scroll not allow.
 					last_DA = da;
 					_carousel.scroll_to(p1, true);
@@ -133,7 +133,6 @@ class pSetting extends Adw.PreferencesGroup {
 		ar.add_suffix(but);
 		ar.set_activatable_widget(but);
 		but.connect('clicked', () => {
-			log("reset");
 			['key-s', 'key-a-s', 'key-1', 'key-a-1', 'key-2', 'key-a-2', 'key-3', 'key-a-3'].forEach(k => { settings.reset(k); });
 		});
 		this.add(ar);
