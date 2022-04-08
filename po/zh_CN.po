@@ -49,6 +49,10 @@ msgid "window may be closed."
 msgstr "关闭窗口"
 
 #: prefs.js:66
+msgid "window may be brought to fullscreen state."
+msgstr "窗口全屏"
+
+#: prefs.js:66
 msgid "window may placed in the \"below\" layer"
 msgstr "窗口置底"
 

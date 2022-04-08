@@ -63,7 +63,7 @@ class pAction extends Adw.PreferencesGroup {
 			[ 'Max-H', _('window may be maximized vertically.') ],
 			[ 'Min', _('window may be iconified.') ],
 			[ 'Close', _('window may be closed.') ],
-			[ 'Full', 'window may be brought to fullscreen state.' ],
+			[ 'Full', _('window may be brought to fullscreen state.') ],
 			[ 'Lower', _('window may placed in the "below" layer') ],
 			//~ [ 'Shade', 'window may be shaded.' ],
 			//~ [ 'Stick', 'window may have its sticky state toggled.' ],
