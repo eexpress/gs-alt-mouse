@@ -142,6 +142,9 @@ class pSetting extends Adw.PreferencesGroup {
 }
 
 function draw(ctx, key, act) {	// Cairo.Context
+	let f, hd, vp;
+	vp = new Rsvg.Rectangle({ x : 0, y : 0, width : size, height : size });
+
 	const [str, len] = settings.get_default_value(key).get_string();
 	if (str != act){
 		ctx.setSourceRGBA(0.4, 0.5, 1, 0.5);	// #6c7be5
@@ -150,14 +153,14 @@ function draw(ctx, key, act) {	// Cairo.Context
 	}
 
 	const icon = { 'key' : 'mouse', '1' : 'button1', '2' : 'button2', '3' : 'button3', 's' : 'scroll', 'a' : 'alt' };
-	let f = Gio.File.new_for_uri('resource:///img/mouse.svg');
-	let hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
+	f = Gio.File.new_for_uri('resource:///img/mouse.svg');
+	hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
 	for (let i of key.split('-')) {
-		hd.render_cairo_sub(ctx, `#${icon[i]}`);
+		hd.render_layer(ctx, `#${icon[i]}`, vp);
 	}
 
 	f = Gio.File.new_for_uri(`resource:///img/act-${act}.svg`);
 	hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
-	const vp = new Rsvg.Rectangle({ x : size, y : 0, width : size, height : size });
+	vp.x = size;
 	hd.render_document(ctx, vp);
 }

@@ -17,7 +17,10 @@
 	<file>img/act-shade.svg</file>
 	<file>img/act-stick.svg</file>
 	<file>img/mouse.svg</file>
+<!--
 	<file>img/separator.svg</file>
+	<file>img/change.svg</file>
+-->
 
   </gresource>
 </gresources>
