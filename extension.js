@@ -67,6 +67,7 @@ class AltMouse {
 		}
 
 		let w = global.display.get_focus_window();
+		//~ let w = Meta.Display.get_focus_window(); //not function
 		if (!w) return Clutter.EVENT_PROPAGATE;
 		let act;
 		switch (event.get_button()) {
@@ -122,15 +123,23 @@ class AltMouse {
 			if (w.can_close()) w.kill();
 			break;
 		case 'full':
-			//~ w.fullscreen();
-			//~ w.fullscreen is not a function
+			w.make_fullscreen();	//Meta.Display
+			//~ w.unmake_fullscreen();	//Meta.Display
+			//~ w.fullscreen();		//~ global.display.fullscreen is not a function
 			break;
 		case 'lower':
 			w.lower();
 			this.switchWindows(true);
 			break;
-		case 'shade': break;
-		case 'stick': break;
+		case 'shade':
+			//~ if (!w.can_shade()) break;
+			if (w.is_shaded()) w.unshade(event.get_time());
+			else w.shade(event.get_time());
+			break;
+		case 'stick':
+			//~ w.stick();
+			//~ w.unstick();
+			break;
 		}
 	};
 

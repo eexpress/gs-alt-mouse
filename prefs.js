@@ -1,6 +1,7 @@
 'use strict';
 
 const { Adw, Gio, Gtk, GObject, Soup, GLib, Rsvg } = imports.gi;
+const Cairo = imports.cairo;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -62,7 +63,7 @@ class pAction extends Adw.PreferencesGroup {
 			[ 'Max-H', _('window may be maximized vertically.') ],
 			[ 'Min', _('window may be iconified.') ],
 			[ 'Close', _('window may be closed.') ],
-			//~ [ 'Full', 'window may be brought to fullscreen state.' ],
+			[ 'Full', 'window may be brought to fullscreen state.' ],
 			[ 'Lower', _('window may placed in the "below" layer') ],
 			//~ [ 'Shade', 'window may be shaded.' ],
 			//~ [ 'Stick', 'window may have its sticky state toggled.' ],
@@ -120,8 +121,8 @@ class pSetting extends Adw.PreferencesGroup {
 					_carousel.scroll_to(p1, true);
 				});
 				da.add_controller(gesture);	//Adds controller so it will receive events.
-				da.set_draw_func((drawArea, cr, width, height) => {
-					draw(cr, da.key, da.act);
+				da.set_draw_func((self, ctx, width, height) => { //281 x 128 ?
+					draw(ctx, da.key, da.act);
 				});
 				ar.add_suffix(da);
 			}
@@ -140,16 +141,23 @@ class pSetting extends Adw.PreferencesGroup {
 	}
 }
 
-function draw(cr, key, act) {
+function draw(ctx, key, act) {	// Cairo.Context
+	const [str, len] = settings.get_default_value(key).get_string();
+	if (str != act){
+		ctx.setSourceRGBA(0.4, 0.5, 1, 0.5);	// #6c7be5
+		ctx.arc(0, 0, 20, 0, 2 * Math.PI);
+		ctx.fill();
+	}
+
 	const icon = { 'key' : 'mouse', '1' : 'button1', '2' : 'button2', '3' : 'button3', 's' : 'scroll', 'a' : 'alt' };
 	let f = Gio.File.new_for_uri('resource:///img/mouse.svg');
 	let hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
 	for (let i of key.split('-')) {
-		hd.render_cairo_sub(cr, `#${icon[i]}`);
+		hd.render_cairo_sub(ctx, `#${icon[i]}`);
 	}
 
 	f = Gio.File.new_for_uri(`resource:///img/act-${act}.svg`);
 	hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
 	const vp = new Rsvg.Rectangle({ x : size, y : 0, width : size, height : size });
-	hd.render_document(cr, vp);
+	hd.render_document(ctx, vp);
 }
