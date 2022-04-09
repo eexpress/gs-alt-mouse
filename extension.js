@@ -6,7 +6,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const AltTab = imports.ui.altTab;
 const layoutManager = Main.layoutManager;
 const monitor = layoutManager.primaryMonitor;
-//~ part copy from: Just Perfection, Edge Gap
+//~ Just Perfection 的隐藏桌面菜单
 const _backgroundMenu = imports.ui.backgroundMenu;
 const orig_bgMenu = _backgroundMenu.BackgroundMenu.prototype.open;
 const aggregateMenu = Main.panel.statusArea.aggregateMenu;
@@ -17,56 +17,55 @@ const orig_updateHotCorners = _LayoutManager.prototype._updateHotCorners;
 //~ 最大化后，panel变成dragWindow状态，导致panel正上方点击失效。所以禁止它的拖放函数。
 const _Panel = imports.ui.panel.Panel;
 const orig_tryDragWindow = _Panel.prototype._tryDragWindow;
-
-const debug = false;
-//~ const debug = true;
-function lg(s) {
-	if (debug) log("===" + Me.uuid.split('@')[0] + "===>" + s)
-};
-
+// Edge Gap 增加一个屏幕右侧占位
 let rightGap = null;
 const gap = 8;
+
+function lg(s) { log("===" + Me.uuid.split('@')[0] + "===>" + s); };
 
 //~ TODO:
 //~ 判断鼠标下面有没有窗口。window_under_pointer
 //~ ‌窗口去掉装饰条。不想使用外挂的xprop。
 //~ ‌窗口上，全局附加alt键。
 //~ 全屏后，panel消失，无法点击。需要全局控制权。
-//~ 桌面双击才有效
+//~ 桌面双击才有效，gnome42+wayland下，单击正常了。。。
 
 class AltMouse {
 	constructor() {
 		this.previousDirection = Meta.MotionDirection.UP;
 		this.settings = ExtensionUtils.getSettings();
-		//~ this.settings.connect('changed::latitude', () => {});
 
-		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));  //~ 鼠标三个按钮需要在桌面双击才有效。
+		this.clickEventId = global.stage.connect('button-release-event', this.clickEvent.bind(this));
 		this.scrollEventId = global.stage.connect('scroll-event', this.scrollEvent.bind(this));
 	}
 
 	skip_extensions() {
 		let [x, y] = global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
-		if (pickedActor.get_name()) return false;  // panel or xFloat
+		if (pickedActor.get_name()) return false;  // panel or xClock
 		//~ if (pickedActor.get_name() == 'panel') return false;  // panel
 		if (pickedActor.width == monitor.width) return false;  // desktop
 		if (pickedActor.width == gap) return false;	 // gap
-		return true;
+		return true;  //其他无名字的，都是面板上的扩展，需要跳过。
 	}
 
 	clickEvent(actor, event) {
 		if (this.skip_extensions()) return Clutter.EVENT_PROPAGATE;
 
 		const altkey = event.get_state() & Clutter.ModifierType.MOD1_MASK;
-		if (debug) {
+		const debug = false;
+		if (debug) {  //调试模式，按ctrl点击，显示点击的坐标。
 			const ctrlkey = event.get_state() & Clutter.ModifierType.CONTROL_MASK;
 			if (ctrlkey) {
 				const [x, y] = global.get_pointer();
+				lg(x + ',' + y);
 				return Clutter.EVENT_STOP;
 			}
 		}
 
 		let w = global.display.get_focus_window();
+		// GdH 提醒，才发现最小化对话栏导致父窗口失联，必须针对父窗口操作。
+		w = w.is_attached_dialog() ? w.get_transient_for() : w;
 		//~ let w = Meta.Display.get_focus_window(); //not function
 		if (!w) return Clutter.EVENT_PROPAGATE;
 		let act;
@@ -83,6 +82,7 @@ class AltMouse {
 		default:
 			return Clutter.EVENT_PROPAGATE;
 		}
+		// 实时查看动作的设置。
 		this.action(w, this.settings.get_string(act), event);
 		return Clutter.EVENT_STOP;
 	}
@@ -123,13 +123,13 @@ class AltMouse {
 			if (w.can_close()) w.kill();
 			break;
 		case 'full':
-			w.make_fullscreen();	//Meta.Display
+			w.make_fullscreen();  // Meta.Display
 			//~ w.unmake_fullscreen();	//Meta.Display
 			//~ w.fullscreen();		//~ global.display.fullscreen is not a function
 			break;
 		case 'lower':
 			w.lower();
-			this.switchWindows(true);
+			//~ this.switchWindows(false);
 			break;
 		case 'shade':
 			//~ if (!w.can_shade()) break;
@@ -151,42 +151,25 @@ class AltMouse {
 			aggregateMenu._volume._handleScrollEvent(0, event);
 			return Clutter.EVENT_STOP;
 		}
-		let isUP;
+		// 直接使用AltTab，只是它调用的get_tab_list()， 按最后激活每次都调整次序。似乎是按照时间戳排序，导致数组前两个窗口循环。
+		// 之前调用的ws.list_windows()，次序固定，但切换窗口后，不反映变化，也不适合。
+		const ws = global.workspace_manager.get_active_workspace();
+		const windows = AltTab.getWindows(ws);
 		switch (event.get_scroll_direction()) {
 		case Clutter.ScrollDirection.UP:
 		case Clutter.ScrollDirection.LEFT:
-			isUP = true;
+			// 循环所有窗口
+			windows[windows.length - 1].activate(global.get_current_time());
 			break;
 		case Clutter.ScrollDirection.DOWN:
 		case Clutter.ScrollDirection.RIGHT:
-			isUP = false;
+			// 循环最后两个窗口
+			windows[1].activate(global.get_current_time());
 			break;
 		default:
 			return Clutter.EVENT_PROPAGATE;
 		}
-		this.switchWindows(isUP);  //切换
 		return Clutter.EVENT_STOP;
-	}
-
-	switchWindows(isUP) {
-		const ws = global.workspace_manager.get_active_workspace();
-		const windows = ws.list_windows();
-		if (windows.length <= 1) return;
-
-		const w = global.display.get_focus_window();
-		let i;
-		for (i = 0; i < windows.length; ++i) {
-			if (windows[i].title == w.title) { break; }
-		}
-
-		if (isUP) {
-			i--;
-			if (i < 0) { i = windows.length - 1; }
-		} else {
-			i++;
-			if (i >= windows.length) { i = 0; }
-		}
-		windows[i].activate(global.get_current_time());
 	}
 
 	destroy() {
@@ -225,10 +208,11 @@ function init(metadata) {
 
 function enable() {
 	lg("start");
-	_backgroundMenu.BackgroundMenu.prototype.open = () => {};
+	_backgroundMenu.BackgroundMenu.prototype.open = () => {};  // Just Perfection
 	_Panel.prototype._tryDragWindow = () => {};
 	_LayoutManager.prototype._updateHotCorners = _updateHotCorners;
 	_updateHotCorners();
+	// Edge Gap
 	rightGap = new St.Bin({
 		reactive : false,
 		can_focus : false,

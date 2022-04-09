@@ -12,7 +12,9 @@ Alt + Mouse control window
 panel/desktop | switch window|move|resize|minimized
 Alt + panel/desktop|volume|max(VERTICAL)|close|above
 
-> 窗口置底/最小化后，滚轮下/上滚，可立刻恢复原貌。After the window is lower / minimized, the roller rolls down/up to restore the original appearance immediately.
+> Scroll: Down, cycle last two windows; Up, cycle all windows.
+
+> 窗口置底/最小化后，滚轮下滚，可立刻恢复原貌。After the window is lower / minimized, scroll down to recovery window immediately.
 
 > Disable desktop BackgroundMenu, Disable Panel dragMode.
 
