@@ -42,11 +42,10 @@ class AltMouse {
 	skip_extensions() {
 		let [x, y] = global.get_pointer();
 		let pickedActor = global.stage.get_actor_at_pos(Clutter.PickMode.ALL, x, y);
-		if (pickedActor.get_name()) return false;  // panel or xClock
-		//~ if (pickedActor.get_name() == 'panel') return false;  // panel
+		if (pickedActor.get_name() == 'panel') return false;  // panel
 		if (pickedActor.width == monitor.width) return false;  // desktop
 		if (pickedActor.width == gap) return false;	 // gap
-		return true;  //其他无名字的，都是面板上的扩展，需要跳过。
+		return true;  //其他无名字的，以及‘xFloat’，都是面板上的扩展，需要跳过。
 	}
 
 	clickEvent(actor, event) {
@@ -64,10 +63,10 @@ class AltMouse {
 		}
 
 		let w = global.display.get_focus_window();
+		if (!w) return Clutter.EVENT_PROPAGATE;
 		// GdH 提醒，才发现最小化对话栏导致父窗口失联，必须针对父窗口操作。
 		w = w.is_attached_dialog() ? w.get_transient_for() : w;
 		//~ let w = Meta.Display.get_focus_window(); //not function
-		if (!w) return Clutter.EVENT_PROPAGATE;
 		let act;
 		switch (event.get_button()) {
 		case 1:
