@@ -163,9 +163,9 @@ function draw(ctx, key, act) {	// Cairo.Context
 		//~ ctx.arc(0, 0, 20, 0, 2 * Math.PI);
 		//~ ctx.fill();
 		const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
-		f= iconTheme.lookup_icon('bookmark-new-symbolic', [], 32, 1, Gtk.TextDirection.NONE, Gtk.IconLookupFlags.FORCE_SIZE).get_file();	//Simon
+		f= iconTheme.lookup_icon('face-wink-symbolic', [], 32, 1, Gtk.TextDirection.NONE, Gtk.IconLookupFlags.FORCE_SIZE).get_file();	//Simon tag-symbolic
 		hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
-		vp = new Rsvg.Rectangle({ x : size*2-10, y : 0, width : 32, height : 32 });
+		vp = new Rsvg.Rectangle({ x : size*2-5, y : 0, width : 32, height : 32 });
 		hd.render_document(ctx, vp);
 	}
 }
