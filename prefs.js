@@ -1,6 +1,6 @@
 'use strict';
 
-const { Adw, Gio, Gtk, GObject, Soup, GLib, Rsvg } = imports.gi;
+const { Adw, Gio, Gtk, GObject, Soup, GLib, Rsvg, Gdk } = imports.gi;
 const Cairo = imports.cairo;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -145,13 +145,6 @@ function draw(ctx, key, act) {	// Cairo.Context
 	let f, hd, vp;
 	vp = new Rsvg.Rectangle({ x : 0, y : 0, width : size, height : size });
 
-	const [str, len] = settings.get_default_value(key).get_string();
-	if (str != act){
-		ctx.setSourceRGBA(0.4, 0.5, 1, 0.5);	// #6c7be5
-		ctx.arc(0, 0, 20, 0, 2 * Math.PI);
-		ctx.fill();
-	}
-
 	const icon = { 'key' : 'mouse', '1' : 'button1', '2' : 'button2', '3' : 'button3', 's' : 'scroll', 'a' : 'alt' };
 	f = Gio.File.new_for_uri('resource:///img/mouse.svg');
 	hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
@@ -163,4 +156,16 @@ function draw(ctx, key, act) {	// Cairo.Context
 	hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
 	vp.x = size;
 	hd.render_document(ctx, vp);
+
+	const [str, len] = settings.get_default_value(key).get_string();
+	if (str != act){
+		//~ ctx.setSourceRGBA(0.4, 0.5, 1, 0.5);	// #6c7be5
+		//~ ctx.arc(0, 0, 20, 0, 2 * Math.PI);
+		//~ ctx.fill();
+		const iconTheme = Gtk.IconTheme.get_for_display(Gdk.Display.get_default());
+		f= iconTheme.lookup_icon('bookmark-new-symbolic', [], 32, 1, Gtk.TextDirection.NONE, Gtk.IconLookupFlags.FORCE_SIZE).get_file();	//Simon
+		hd = Rsvg.Handle.new_from_gfile_sync(f, Rsvg.HandleFlags.FLAGS_NONE, null);
+		vp = new Rsvg.Rectangle({ x : size*2-10, y : 0, width : 32, height : 32 });
+		hd.render_document(ctx, vp);
+	}
 }

@@ -2,7 +2,7 @@
   "name": "Alt Mouse",
   "description": "* Alt + Mouse control window\nDetailed instructions are on the home page and in config interface. \nDisable desktop BackgroundMenu, Disable Panel dragMode. \nAdd a gap at right screen edge. \nAdd Top-Left and Top-Right corner as hot coner.",
   "uuid": "alt-mouse@eexpss.gmail.com",
-  "url": "https://github.com/eexpress/gnome-shell-alt-mouse",
+  "url": "https://github.com/eexpress/gs-alt-mouse",
   "gettext-domain": "alt-mouse",
   "settings-schema": "org.gnome.shell.extensions.alt-mouse",
   "shell-version": [
