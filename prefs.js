@@ -20,7 +20,7 @@ function init() {
 
 function fillPreferencesWindow(window) {
 	window.set_default_size(500, 800);
-	let resource = Gio.Resource.load(Me.path + '/icon.gresource');
+	let resource = Gio.Resource.load(Me.path + '/res.gresource');
 	Gio.resources_register(resource);
 	settings = ExtensionUtils.getSettings();
 
@@ -96,6 +96,12 @@ class pSetting extends Adw.PreferencesGroup {
 		let ar = new Adw.ActionRow();
 		ar.set_title(_('Mouse Setting'));
 		ar.set_subtitle(_('Click the picture below to modify the corresponding action. \nThe scroll function cannot be modified.\nThe next page lists all Actions. You can drag/2 fingers swip/scroll to show it.'));
+		const img = new Gtk.Image({
+			//~ file: Me.path + '/1.gif',	// 桌面gjs中，gif工作。
+			gicon: Gio.Icon.new_for_string('resource:///img/1.gif'),
+			pixel_size: 60,
+		});
+		ar.add_suffix(img);
 		this.add(ar);
 
 		[
