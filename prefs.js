@@ -13,8 +13,8 @@ let p0;
 let p1;
 let last_DA;
 let settings;
-let timeout;
-let loop = 0;
+//~ let timeout;
+//~ let loop = 0;
 
 function init() {
 	ExtensionUtils.initTranslations();
@@ -29,12 +29,12 @@ function fillPreferencesWindow(window) {
 	let page = Adw.PreferencesPage.new();
 	page.add(new pGroup());
 	window.add(page);
-	window.connect('destroy', () => {
-		if (timeout) {
-			GLib.Source.remove(timeout);
-			timeout = null;
-		}
-	});
+	//~ window.connect('destroy', () => {
+		//~ if (timeout) {
+			//~ GLib.Source.remove(timeout);
+			//~ timeout = null;
+		//~ }
+	//~ });
 }
 
 class pGroup extends Adw.PreferencesGroup {
@@ -111,23 +111,23 @@ class pSetting extends Adw.PreferencesGroup {
 		//~ });
 		//~ ar.add_suffix(img);
 		//~ const pb = GdkPixbuf.Pixbuf.new_from_file(Me.path + "/kr4_humans.png");
-		const pb = GdkPixbuf.Pixbuf.new_from_resource("/img/kr4_humans.png");
-		const da = new Gtk.DrawingArea({ content_width : 52,  content_height: 60 });
-		da.valign = Gtk.Align.CENTER;
-		let xx = 2520; const yy = 67; const cc = 4;
-		// 4个动画的起始位置，依次加52位移宽度。总高度127, 偏移67, 卡片高度60。
+		//~ const pb = GdkPixbuf.Pixbuf.new_from_resource("/img/kr4_humans.png");
+		//~ const da = new Gtk.DrawingArea({ content_width : 52,  content_height: 60 });
+		//~ da.valign = Gtk.Align.CENTER;
+		//~ let xx = 2520; const yy = 67; const cc = 4;
+		//~ // 4个动画的起始位置，依次加52位移宽度。总高度127, 偏移67, 卡片高度60。
 
-		da.set_draw_func((self, ctx, width, height) => {
-			Gdk.cairo_set_source_pixbuf(ctx, pb, -(xx+loop*52), -yy);
-			ctx.paint();
-		});
-		ar.add_suffix(da);
+		//~ da.set_draw_func((self, ctx, width, height) => {
+			//~ Gdk.cairo_set_source_pixbuf(ctx, pb, -(xx+loop*52), -yy);
+			//~ ctx.paint();
+		//~ });
+		//~ ar.add_suffix(da);
+		//~ timeout =  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
+			//~ loop = (loop+1) % 4;
+			//~ da.queue_draw();
+			//~ return GLib.SOURCE_CONTINUE;
+		//~ });
 		this.add(ar);
-		timeout =  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
-			loop = (loop+1) % 4;
-			da.queue_draw();
-			return GLib.SOURCE_CONTINUE;
-		});
 
 		[
 			[ 'key-s', 'key-a-s' ],
