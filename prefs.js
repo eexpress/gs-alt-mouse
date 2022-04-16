@@ -29,6 +29,12 @@ function fillPreferencesWindow(window) {
 	let page = Adw.PreferencesPage.new();
 	page.add(new pGroup());
 	window.add(page);
+	window.connect('destroy', () => {
+		if (timeout) {
+			GLib.Source.remove(timeout);
+			timeout = null;
+		}
+	});
 }
 
 class pGroup extends Adw.PreferencesGroup {
