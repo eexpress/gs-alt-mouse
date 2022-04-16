@@ -1,6 +1,6 @@
 'use strict';
 
-const { Adw, Gio, Gtk, GObject, Soup, GLib, Rsvg, Gdk } = imports.gi;
+const { Adw, Gio, Gtk, GObject, Soup, GLib, Rsvg, Gdk, GdkPixbuf } = imports.gi;
 const Cairo = imports.cairo;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -13,6 +13,8 @@ let p0;
 let p1;
 let last_DA;
 let settings;
+let timeout;
+let loop = 0;
 
 function init() {
 	ExtensionUtils.initTranslations();
@@ -96,13 +98,30 @@ class pSetting extends Adw.PreferencesGroup {
 		let ar = new Adw.ActionRow();
 		ar.set_title(_('Mouse Setting'));
 		ar.set_subtitle(_('Click the picture below to modify the corresponding action. \nThe scroll function cannot be modified.\nThe next page lists all Actions. You can drag/2 fingers swip/scroll to show it.'));
-		const img = new Gtk.Image({
+		//~ const img = new Gtk.Image({
 			//~ file: Me.path + '/1.gif',	// 桌面gjs中，gif工作。
-			gicon: Gio.Icon.new_for_string('resource:///img/1.gif'),
-			pixel_size: 60,
+			//~ gicon: Gio.Icon.new_for_string('resource:///img/1.gif'),
+			//~ pixel_size: 60,
+		//~ });
+		//~ ar.add_suffix(img);
+		//~ const pb = GdkPixbuf.Pixbuf.new_from_file(Me.path + "/kr4_humans.png");
+		const pb = GdkPixbuf.Pixbuf.new_from_resource("/img/kr4_humans.png");
+		const da = new Gtk.DrawingArea({ content_width : 52,  content_height: 60 });
+		da.valign = Gtk.Align.CENTER;
+		let xx = 2520; const yy = 67; const cc = 4;
+		// 4个动画的起始位置，依次加52位移宽度。总高度127, 偏移67, 卡片高度60。
+
+		da.set_draw_func((self, ctx, width, height) => {
+			Gdk.cairo_set_source_pixbuf(ctx, pb, -(xx+loop*52), -yy);
+			ctx.paint();
 		});
-		ar.add_suffix(img);
+		ar.add_suffix(da);
 		this.add(ar);
+		timeout =  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
+			loop = (loop+1) % 4;
+			da.queue_draw();
+			return GLib.SOURCE_CONTINUE;
+		});
 
 		[
 			[ 'key-s', 'key-a-s' ],
