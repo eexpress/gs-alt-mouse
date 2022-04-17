@@ -129,7 +129,7 @@ class pSetting extends Adw.PreferencesGroup {
 			ctx.paint();
 		});
 		ar.add_suffix(da);
-		timeout =  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
+		timeout =  GLib.timeout_add(GLib.PRIORITY_DEFAULT, 200, () => {
 			loop = (loop+1) % 6;
 			da.queue_draw();
 			return GLib.SOURCE_CONTINUE;
