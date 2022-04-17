@@ -90,6 +90,12 @@ class pAction extends Adw.PreferencesGroup {
 				//~ log('=== Alt Mouse ===> ' + last_DA.key + ' = ' + last_DA.act);
 				settings.set_string(last_DA.key, last_DA.act);
 				_carousel.scroll_to(p0, true);
+				if (this.root instanceof Adw.PreferencesWindow) {	//Romain
+					this.root.add_toast(new Adw.Toast({
+						title: _(`The "${last_DA.key}" action has been changed to "${last_DA.act}".`),
+						timeout: 5,
+					}));
+				}
 			});
 			this.add(ar);
 		});
