@@ -206,7 +206,7 @@ function init(metadata) {
 }
 
 function enable() {
-	lg("start");
+	//~ lg("start");
 	_backgroundMenu.BackgroundMenu.prototype.open = () => {};  // Just Perfection
 	_Panel.prototype._tryDragWindow = () => {};
 	_LayoutManager.prototype._updateHotCorners = _updateHotCorners;
@@ -228,7 +228,7 @@ function enable() {
 }
 
 function disable() {
-	lg("stop");
+	//~ lg("stop");
 	_backgroundMenu.BackgroundMenu.prototype.open = orig_bgMenu;
 	_Panel.prototype._tryDragWindow = orig_tryDragWindow;
 	_LayoutManager.prototype._updateHotCorners = orig_updateHotCorners;
