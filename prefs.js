@@ -118,14 +118,14 @@ class pSetting extends Adw.PreferencesGroup {
 		//~ });
 		//~ ar.add_suffix(img);
 		//~ const pb = GdkPixbuf.Pixbuf.new_from_file(Me.path + "/kr4_humans.png");
-		const pb = GdkPixbuf.Pixbuf.new_from_resource("/img/sort.png");
-		const da = new Gtk.DrawingArea({ content_width : 60,  content_height: 70 });
+		const pb = GdkPixbuf.Pixbuf.new_from_resource("/img/1.png");	// 70x70[6]
+		const da = new Gtk.DrawingArea({ content_width : 70,  content_height: 70 });
 		da.valign = Gtk.Align.CENTER;
 		//~ let xx = 2520; const yy = 67; const cc = 4;
 		//~ // 4个动画的起始位置，依次加52位移宽度。总高度127, 偏移67, 卡片高度60。
 
 		da.set_draw_func((self, ctx, width, height) => {
-			Gdk.cairo_set_source_pixbuf(ctx, pb, -(loop*60), 0);
+			Gdk.cairo_set_source_pixbuf(ctx, pb, -(loop*70), 0);
 			ctx.paint();
 		});
 		ar.add_suffix(da);
