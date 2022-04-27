@@ -158,12 +158,12 @@ class AltMouse {
 		case Clutter.ScrollDirection.UP:
 		case Clutter.ScrollDirection.LEFT:
 			// 循环所有窗口
-			windows[windows.length - 1].activate(global.get_current_time());
+			windows[windows.length - 1].activate();
 			break;
 		case Clutter.ScrollDirection.DOWN:
 		case Clutter.ScrollDirection.RIGHT:
 			// 循环最后两个窗口
-			windows[1].activate(global.get_current_time());
+			windows[1].activate(global.get_current_time());	// time参数可省略
 			break;
 		default:
 			return Clutter.EVENT_PROPAGATE;
