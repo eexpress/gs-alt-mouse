@@ -158,7 +158,7 @@ class AltMouse {
 		case Clutter.ScrollDirection.UP:
 		case Clutter.ScrollDirection.LEFT:
 			// 循环所有窗口
-			windows[windows.length - 1].activate();
+			windows[windows.length - 1].activate(global.get_current_time());
 			break;
 		case Clutter.ScrollDirection.DOWN:
 		case Clutter.ScrollDirection.RIGHT:
